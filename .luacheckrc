@@ -5,6 +5,11 @@ max_line_length = 120
 -- Local tooling directories are not part of the project.
 exclude_files = { ".claude/" }
 
+-- The export library publishes one global, as ESO libraries do.
+files["src/LibExportStore/"] = {
+    globals = { "LibExportStore" },
+}
+
 -- Offline tests: the runner (tests/lua/run.lua) provides these globals to every spec.
 files["tests/"] = {
     read_globals = {
