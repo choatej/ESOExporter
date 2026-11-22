@@ -9,3 +9,6 @@ the project follows [Semantic Versioning](https://semver.org/) once it is releas
 ### Added
 - Project scaffold: README, license, contributing guide, issue and PR templates,
   and architecture notes.
+- Project plan and a fuller architecture document.
+- Developer tooling: StyLua and Luacheck configuration, a Taskfile, and an
+  offline Lua test runner (LuaJIT).

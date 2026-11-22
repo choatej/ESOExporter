@@ -73,17 +73,25 @@ Directories appear as the corresponding pull requests land.
 
 ## Code style
 
-- **Lua** targets ESO's Lua 5.1: no `goto`, no 5.2+ features. Formatting with
-  StyLua and linting with Luacheck (configuration will be added with the first Lua code).
+- **Lua** targets ESO's Lua 5.1: no `goto`, no 5.2+ features. Formatting is
+  [StyLua](https://github.com/JohnnyMorganz/StyLua) (`stylua.toml`) and linting is
+  [Luacheck](https://github.com/lunarmodules/luacheck) (`.luacheckrc`).
 - **Python** is formatted and linted with Ruff.
 - Add-ons cannot write files, and a SavedVariables string must stay under 2000
   characters; keep both in mind when touching storage code.
 
 ## Tests
 
-Test and CI setup will be added with the first code. Until then, describe how
-you verified a change in the pull request. For in-game behaviour, say which
-game version you tested on.
+You need [Task](https://taskfile.dev), LuaJIT, StyLua and Luacheck on your path.
+
+```sh
+task check    # formatting, lint and the offline Lua tests
+task format   # apply formatting
+task test     # tests only; see tests/README.md
+```
+
+CI will run `task check` later. For behaviour that cannot be tested offline,
+describe how you verified it in game and which game version you used.
 
 ## Reporting bugs
 
