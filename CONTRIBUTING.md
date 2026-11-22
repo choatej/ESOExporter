@@ -39,11 +39,24 @@ Say "stacked on #N" in the description. Merge in order, parent first:
    git push
    ```
 
-   The child contains the parent's original commits and `main` has the squashed
-   version of the same content, so the merge is normally clean. If you changed
-   the parent after opening the child, resolve any conflict in favour of `main`'s
-   copy of the parent's files.
-3. Check the child's diff now shows only its own changes, then squash-merge it.
+   Expect conflicts in any file the child changed after the parent added it. Git
+   sees the parent's squashed copy on `main` and the child's copy (the parent's
+   content plus the child's edits) as two different additions. The child's copy
+   is the right one, **provided `main`'s copy is exactly what the parent
+   contained**, meaning the parent was not changed during review. Check that
+   first, then keep the child's files:
+
+   ```sh
+   git diff <parent-branch-tip> origin/main --stat   # must print nothing
+   git checkout --ours -- <conflicted files>
+   git add <conflicted files>
+   git commit
+   ```
+
+   If the diff is not empty, the parent changed after the child was created, and
+   keeping the child's files would discard those changes. Merge them by hand instead.
+3. Check that `git diff origin/main --stat` lists only the child's own changes,
+   then squash-merge it.
 
 ## Repository layout (planned)
 
