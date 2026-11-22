@@ -1,0 +1,37 @@
+version: "3"
+
+# Developer tasks. Requires: task, luajit, stylua, luacheck (see CONTRIBUTING.md).
+
+tasks:
+  default:
+    desc: List the available tasks
+    cmds:
+      - task --list
+    silent: true
+
+  format:
+    desc: Format all Lua files
+    cmds:
+      - stylua .
+
+  format:check:
+    desc: Check Lua formatting without changing files
+    cmds:
+      - stylua --check .
+
+  lint:
+    desc: Lint all Lua files
+    cmds:
+      - luacheck .
+
+  test:
+    desc: Run the offline Lua tests (optionally filter by spec name, e.g. task test -- export)
+    cmds:
+      - luajit tests/lua/run.lua {{.CLI_ARGS}}
+
+  check:
+    desc: Everything CI will run later - formatting, lint and tests
+    cmds:
+      - task: format:check
+      - task: lint
+      - task: test
