@@ -118,14 +118,15 @@ and a post-processor mapping for each entry.
 
 | # | Branch | Title | Milestone | State |
 |---|---|---|---|---|
-| 1 | `chore/scaffold` | Project scaffold and architecture notes | M0 | open |
-| 2 | `docs/architecture-and-plan` | Architecture and project plan | M0 | open, stacked on 1 |
-| 3 | `chore/dev-tooling` | Lua tooling and offline test runner | M0 | open, stacked on 2 |
-| 4 | `feat/export-lib` | `LibExportStore` | M1 | open, stacked on 3 |
-| 5 | | Schema v1 and first fixture | M1 | planned |
-| 6 | | Topic tree v1 | M1 | planned |
-| 7 | | Add-on skeleton, topic registry and runner | M2 | planned |
-| 8 | | Character identity extractor and `save` command | M2 | planned |
+| 1 | `chore/scaffold` | Project scaffold and architecture notes | M0 | merged |
+| 2 | `docs/architecture-and-plan` | Architecture and project plan | M0 | merged |
+| 3 | `chore/dev-tooling` | Lua tooling and offline test runner | M0 | merged |
+| 4 | `feat/export-lib` | `LibExportStore` | M1 | merged |
+| 5 | `docs/agent-context` | `CLAUDE.md` for agent sessions; update this table | M0 | open |
+| 6 | | Schema v1 and first fixture | M1 | planned |
+| 7 | | Topic tree v1 | M1 | planned |
+| 8 | | Add-on skeleton, topic registry and runner | M2 | planned |
+| 9 | | Character identity extractor and `save` command | M2 | planned |
 
 Later pull requests are added here as earlier ones merge.
 
