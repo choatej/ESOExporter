@@ -15,15 +15,29 @@ CharacterMarkdown (README credits it as "Inspired By").
 ## Where we are
 
 Merged: scaffold, docs, Lua tooling, `LibExportStore` (the export library).
-Next, in order (see the PR roadmap in the plan): schema v1 and a first scrubbed
-fixture, topic tree v1, add-on skeleton with topic registry and runner, character
-identity extractor and `save` command.
+Next, in order (see the PR roadmap in the plan): schema v1 and a first fixture,
+topic tree v1, add-on skeleton with topic registry and runner, character identity
+extractor and `save` command. Until the add-on exists there is no real output, so
+the first fixture is hand-built to the schema rather than scrubbed from real data.
 
 **Decisions that belong to the maintainer. Ask, do not decide silently:**
 the export library's final name (`LibExportStore` is provisional), whether export
 data lives in a separate small add-on to get its own SavedVariables file, the
 default post-processor's technology, the schema language details, and slash
 command names.
+
+## Session handoff
+
+- **Tracked, shared state** lives in this file's "Where we are" and in the PR
+  table of the plan. Update both in the PR that finishes a step.
+- **Private notes** (anything personal or machine-specific) go in `.local/`, which
+  is git-ignored. Ignored files are per checkout, so a session working in a git
+  worktree does not have its own copy and loses anything it writes there when the
+  worktree is removed. Use the **primary checkout's** directory by absolute path:
+  `~/src/ESOExporter/.local/`. If `HANDOFF.md` exists there, read it after this file.
+- A background (worktree-isolated) session can read that directory but the harness
+  refuses its writes there. Such a session puts its handoff in its final report and
+  the maintainer saves it to `.local/HANDOFF.md`.
 
 ## Git workflow (strict)
 
@@ -93,6 +107,9 @@ All read-only references. Nothing here is a dependency.
 - `~/src/cm-dump-2026-11-14/`: real exports from the maintainer's character,
   including a real `SavedVariables` file. Use them to design fixtures. They
   contain real character and account names, so scrub anything derived from them.
+- ESO API reference: `~/src/CharacterMarkdown/ESOUIDocumentationP50.txt` is for API
+  101050 and `docs/ESOUIDocumentation.txt` for 101048. Both are older than the
+  live 101051, so confirm any function or constant in game before relying on it.
 - The upstream-PR hold on CharacterMarkdown is a separate matter and does not
   affect this repository.
 

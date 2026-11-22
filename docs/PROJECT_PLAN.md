@@ -37,7 +37,8 @@ met and its pull requests are merged.
   tests (including a property test that no stored string reaches 2000 characters).
 - Schema v1: storage envelope, entry shape, `meta`, and the `$parts` convention.
 - Topic tree v1 (`tree.json`) with the starting topic catalog.
-- A first scrubbed fixture.
+- A first fixture. It is hand-built to the schema, because no add-on output exists
+  yet; it is replaced by scrubbed real output once M2 produces some.
 
 *Exit:* the library passes its tests under LuaJIT, and the schema validates the
 fixture.
@@ -147,7 +148,9 @@ Later pull requests are added here as earlier ones merge.
 1. Name of the export library (currently `LibExportStore`).
 2. Whether export data lives in a separate small add-on to get its own file.
 3. Technology and distribution of the default post-processor.
-4. Schema language details (JSON Schema draft and where validation runs).
+4. Schema language details (JSON Schema draft) and how schemas are validated: the
+   Lua toolchain has no JSON Schema validator, so validation needs a Python test
+   dependency or a small hand-written checker.
 5. Slash command names.
 
 ## Assumptions to verify in game
