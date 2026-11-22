@@ -9,7 +9,8 @@ structured Lua tables, plus tools that turn that data into whatever format you
 need (Markdown, JSON, and more).
 
 > **Status: pre-alpha.** Nothing is released yet. This repository currently holds
-> the project scaffold and design notes. See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
+> the project scaffold and design notes. See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)
+> for the design and [docs/PROJECT_PLAN.md](docs/PROJECT_PLAN.md) for the plan.
 
 ## Why
 

@@ -24,6 +24,27 @@ open an issue to discuss what you want to change.
    git branch -d <branch>
    ```
 
+## Stacked pull requests
+
+When a change depends on an open pull request, branch from that pull request's
+branch and open the new pull request **against the parent branch**, not `main`.
+Say "stacked on #N" in the description. Merge in order, parent first:
+
+1. Squash-merge the parent. GitHub deletes its branch and retargets the child to `main`.
+2. In the child branch, merge `main` (no rebase) and push:
+
+   ```sh
+   git fetch
+   git merge origin/main
+   git push
+   ```
+
+   The child contains the parent's original commits and `main` has the squashed
+   version of the same content, so the merge is normally clean. If you changed
+   the parent after opening the child, resolve any conflict in favour of `main`'s
+   copy of the parent's files.
+3. Check the child's diff now shows only its own changes, then squash-merge it.
+
 ## Repository layout (planned)
 
 ```

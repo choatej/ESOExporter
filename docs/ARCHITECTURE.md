@@ -1,16 +1,36 @@
-# Architecture (draft)
+# Architecture
 
-This is the design as agreed at project start. It will change; update it in the
-same pull request as the change.
+Status: **draft, agreed at project start.** Update this document in the same
+pull request as any change that affects it. Anything marked *(verify)* is an
+assumption about the game that must be checked in game before relying on it.
+The delivery order is in [PROJECT_PLAN.md](PROJECT_PLAN.md).
 
-## Goal
+## 1. Purpose and scope
 
-Extract ESO character and account data as nested Lua tables and get it out of
-the game through SavedVariables. Formatting happens outside the game. The name
-is deliberately not "Character...": some data is account-level, and anything
-exportable is in scope over time.
+ESOExporter extracts Elder Scrolls Online character and account data as nested
+Lua tables and gets it out of the game through SavedVariables. Everything that
+turns that data into a readable or shareable format happens outside the game.
 
-## Components
+The name is deliberately not "Character...": some data is account-level, and
+anything the game exposes is in scope over time.
+
+**Goals**
+
+- A settings screen in game, so users choose a default set of topics once and
+  never type a long command line (important on Steam Deck).
+- The add-on, not the post-processor, decides what is extracted. Unselected
+  topics cost nothing: no extraction time, no SavedVariables size.
+- Formatting never runs in the game.
+- A reusable export library that other add-ons can adopt.
+- Two post-processors against one versioned contract.
+
+**Non-goals**
+
+- Writing files from the game (impossible) or any network access from the add-on.
+- Console support. Consoles cannot reach SavedVariables files.
+- Markdown or any display formatting inside the add-on.
+
+## 2. Overview
 
 ```
  in game                                          outside the game
@@ -19,67 +39,236 @@ exportable is in scope over time.
  │  settings screen -> topic selection     │     │  default (local web)  │
  │  extractors -> plain nested tables      │     │  Python CLI           │
  │  login reminder about stored data       │ SV  │  both read the schema │
- │            |                            │---->│                       │
+ │            |                            │---->│  and share fixtures   │
  │            v                            │file └───────────────────────┘
  │ Export library (own manifest)           │
- │  sanitize, chunk, version, size report  │
+ │  sanitize, split, size report           │
  └─────────────────────────────────────────┘
 ```
 
-## Decisions
+Data flows one way: game, SavedVariables file, post-processor, output file.
 
-1. **The add-on decides what is exported.** The user picks topics in an in-game
-   settings screen and saves defaults, so no long command line is needed
-   (important on Steam Deck). Only selected topics are extracted, which keeps
-   extraction time and SavedVariables size down. Heavy topics (inventory,
-   achievements) are opt-in.
-2. **Formatting lives in post-processors, not the add-on.** The add-on emits
-   data, never Markdown.
-3. **Two post-processors, one contract.** A default one that needs nothing
-   installed, and a Python CLI. Both are built against a versioned schema and
-   tested against shared golden fixtures so they cannot drift apart.
-4. **The export library is separate.** It has its own manifest
-   (`## IsLibrary: true`, `## AddOnVersion`; LibStub is deprecated for new
-   libraries) and **declares no SavedVariables of its own**. A consuming add-on
-   owns its table and passes it in, so one consumer's data never loads for the
-   others. Publish it to ESOUI once it has a second consumer or a stable API.
-5. **Stored data is raw.** Item links and enums are stored as the game gives
-   them, with IDs rather than display names. Names, set bonuses and links are
-   resolved in post-processing. This avoids runtime dependencies on set-data
-   libraries.
-6. **Login reminder.** When exports are stored, the add-on can say how many,
-   how old and how large they are, and offer to clear them. It cannot know
-   whether a post-processor ran, so it goes by age and size. A clear reaches the
-   file on the next `/reloadui` or logout.
-7. **Platform:** PC, macOS and Steam Deck. Consoles cannot reach SavedVariables
-   files, so console libraries are out of scope.
+## 3. Components
 
-## SavedVariables constraints
+### 3.1 Add-on (`ESOExporter`)
+
+| Module | Responsibility |
+|---|---|
+| Core | Namespace, version, logging, safe-call wrappers for game functions |
+| Topic registry | The catalog of topics: id, scope, cost class, dependencies, extractor |
+| Extractors | One per topic. Read the game, return a plain table of raw values |
+| Runner | Resolve the selection, run extractors (async), sanitize, store, report |
+| Settings | Saved defaults and the in-game settings panel |
+| Commands | Slash commands: save, clear, status, settings (names are draft) |
+| Reminder | Login message about stored exports |
+
+An extractor must not format. It returns what the game said: IDs, enums,
+numbers, raw item links, and strings as given. See "Raw data" below.
+
+### 3.2 Export library (`LibExportStore`, name provisional)
+
+A separate add-on folder with its own manifest (`## IsLibrary: true`,
+`## AddOnVersion`; LibStub is deprecated for new libraries). It has **no
+dependencies and declares no SavedVariables of its own.** A consuming add-on owns
+its table and passes it in, so one consumer's data never loads for the others.
+
+Responsibilities, all as pure functions over tables:
+
+- `Sanitize`: copy a value into a form SavedVariables can store and report what
+  was changed or dropped.
+- `SplitText` / `JoinText`: cut text into parts under the string limit on UTF-8
+  boundaries and rejoin it exactly.
+- `Restore`: rejoin sanitized long strings.
+- `NewEntry`, `Put`, `Remove`: build and maintain entries inside a container.
+- `Summarize`: counts, ages and approximate size, for the login reminder.
+
+It is published to ESOUI only after a second consumer exists or the API has
+settled. Until then it lives in this repository.
+
+### 3.3 Schema
+
+The versioned contract between the add-on and every post-processor, kept in
+`schema/`:
+
+- The storage envelope and the per-topic shapes (JSON Schema).
+- The topic tree (`tree.json`): ids, labels, parents, defaults and cost class.
+  It is the single source of truth for the settings screen and for the
+  post-processors' topic selection.
+- Golden fixtures: scrubbed SavedVariables files plus the expected output of each
+  post-processor.
+
+### 3.4 Post-processors
+
+Both read a SavedVariables file, validate it against the schema, rejoin
+`$parts` strings, resolve names from reference data, and write output formats.
+
+- **Default:** runs locally in a browser, nothing to install. Parses the Lua
+  table text in the page; the file never leaves the machine.
+- **Python:** a command-line tool for scripting. Already prototyped in the
+  author's earlier work and ported here under test.
+
+The two must produce the same normalized model from the same fixture. Output
+formats (JSON, lean Markdown, build summaries) are added per tool.
+
+## 4. Data model
+
+### 4.1 Storage layout (draft)
+
+```lua
+ESOExporterData = {
+  meta = {
+    schema = 1,
+    addon = "ESOExporter", addonVersion = "0.1.0",
+    apiVersion = 101051, gameVersion = "eso.live.12.1.7.3318083",
+    server = "NA Megaserver",
+  },
+  account = {                        -- account-level topics
+    topics = { currency = <entry>, ... },
+  },
+  characters = {
+    ["<characterId>"] = {            -- stable id, not the name
+      name = "...",
+      topics = { equipment = <entry>, ... },
+    },
+  },
+}
+```
+
+An `<entry>` is `{ kind = "data", timestamp = <epoch>, data = <table>, report = <table> }`.
+Characters are keyed by character id because names can change and repeat across
+servers *(verify)*. Account-level and character-level topics are separate scopes
+so the layout does not assume "character".
+
+### 4.2 Raw data
+
+- Store IDs and enums as numbers, item links as the original string, and names
+  only where the game returns a name and no ID exists.
+- Resolve names, bonuses and links in post-processing. This keeps the add-on
+  free of set-data library dependencies and keeps display decisions out of the game.
+- Use `nil` for absent values, not placeholder strings.
+
+### 4.3 Limits and the report
 
 - A single string of 2000 characters or more is silently dropped by the game
-  (confirmed by ZOS staff in 2020). Long text is stored as parts of at most
-  1900 bytes, split on UTF-8 character boundaries.
-- Functions, NaN and cycles cannot be saved. The export library drops them and
-  records a report.
-- SavedVariables load into memory at login. Large exports cost memory and load
-  time until cleared, so size is reported and exports are cleared after use.
+  (confirmed by ZOS staff in 2020). `Sanitize` replaces a long string with
+  `{ ["$parts"] = { ... } }`, each part at most 1900 bytes.
+- Functions, userdata, threads, NaN, infinities, cycles, over-deep tables and
+  keys that are not strings or numbers are dropped, and each is listed in the
+  entry's `report`.
+- Key counts are effectively unlimited since the 64-bit Lua VM. A modder reported
+  about 130 MB as the practical ceiling before load times and crashes. The report
+  includes an approximate byte count so size can be shown and capped.
 
-## Library candidates
+## 5. Extraction pipeline
+
+1. Read the effective topic selection from settings (or from a command argument).
+2. Expand dependencies and order topics. Light topics run together; heavy topics
+   (inventory, achievements) are opt-in.
+3. Run each extractor under `pcall`. A failing extractor is recorded in the run
+   report and never aborts the others.
+4. Spread work across frames with LibAsync so the client never stalls.
+5. Sanitize each result into an entry and `Put` it into the container.
+6. Print a one-line summary (counts, size, dropped values) and remind the user
+   that the file is written on `/reloadui`, logout or quit.
+
+## 6. Settings and the topic tree
+
+- **Structure and values are separate.** `tree.json` is fixed and never saved.
+  Saved values are one flat table, `path -> boolean`, and only entries that
+  differ from the default are stored. SavedVariables cannot hold functions or
+  cycles, which a parent-linked tree would need.
+- **Gate semantics.** A node is effective when it and every ancestor are on. A
+  child's stored value survives its parent being switched off. The effective
+  state is derived top-down in one pass and kept in memory only.
+- **Panel.** The settings screen uses LibAddonMenu-2.0 *(verify that submenus
+  can express the tree depth; otherwise a small custom panel)*. A "default
+  export" preset covers the common case in one click.
+- **Commands** accept the same topic paths for one-off exports.
+
+## 7. SavedVariables handling
+
+- `SavedVariables/<AddOn>.lua` contains every global the add-on lists
+  *(verify)*. Settings and exports therefore share one file unless the export
+  data is owned by a separate small add-on. Splitting keeps the data file easy
+  to find, parse and delete. This is an open decision.
+- SavedVariables are loaded into memory at login, so stored exports cost memory
+  and load time until cleared. Exports are therefore meant to be short-lived.
+- The file is written only on `/reloadui`, logout or quit, so a clear reaches
+  the file on the next one of those.
+
+## 8. Login reminder
+
+On first player activation per session *(verify the event)*, if exports are
+stored, print one line: how many, how old, approximate size, and how to clear
+them. The add-on cannot know whether a post-processor ran, so it goes by age and
+size. A setting disables the message and a setting can clear exports older than
+a chosen age automatically.
+
+## 9. Versioning and compatibility
+
+- `meta.schema` is an integer. A breaking change increments it; post-processors
+  support the current and previous schema and say so when they cannot read a file.
+- The add-on follows Semantic Versioning once released. The manifest's
+  `## APIVersion` is bumped for each game update after checking the changelog.
+  The live API version was 101051 (game 12.1.7) when this was written.
+- `meta` records add-on, API and game versions so a bug report is reproducible.
+
+## 10. Dependencies
 
 | Library | Plan |
 |---|---|
-| LibAsync | Use: spread extraction across frames |
+| LibAsync | Required: spread extraction across frames |
+| LibAddonMenu-2.0 | Required for the settings screen |
 | LibCharacterKnowledge | Use at export time only, for crafting knowledge |
-| LibAddonMenu-2.0 | Use for the settings screen |
 | LibItemSets | Optional, only if set data is needed in game |
 | LibDebugLogger, LibChatMessage | Optional |
 
-Verify each library's current version and license before depending on it.
+Policy: depend on a library only when it removes real work, check its license
+and recent update history first, and prefer optional dependencies with a clear
+fallback. No console-only libraries. The last survey of the ESOUI Libraries
+category is summarized in the project plan.
 
-## Open questions
+## 11. Testing
 
-- The default post-processor: browser-based, reading the file locally, is the
-  working assumption.
-- Schema format and where the golden fixtures live.
-- Whether the settings screen can express the topic tree with LibAddonMenu
-  submenus, or needs a custom panel.
+- **Offline Lua tests** under LuaJIT (Lua 5.1) for all pure code: the export
+  library, the topic tree, extractors against stubbed game functions.
+- **Golden fixtures** shared by both post-processors.
+- **In-game checklist** for what cannot be stubbed: settings panel, login
+  reminder, real extraction on a real character, SavedVariables round trip.
+
+## 12. Security and privacy
+
+- SavedVariables files from other people are untrusted input. Post-processors
+  must parse them as data and never execute them.
+- Exports can contain account and character names. Fixtures must be scrubbed,
+  and post-processors should offer an option to redact identifiers.
+- The add-on makes no network requests.
+
+## 13. Repository layout
+
+```
+src/ESOExporter/       the add-on (folder name must match its manifest name)
+src/LibExportStore/    the export library (own manifest, IsLibrary)
+schema/                envelope and topic schemas, tree.json, fixtures
+tools/python/          Python post-processor
+tools/web/             default post-processor
+tests/lua/             offline Lua tests
+docs/                  this file and the project plan
+```
+
+## 14. Decisions
+
+1. The add-on decides what is exported; settings are in game.
+2. Formatting lives in post-processors only.
+3. Two post-processors, one schema, shared fixtures.
+4. The export library is separate, dependency-free and owns no SavedVariables.
+5. Data is stored raw; names and links are resolved outside the game.
+6. Account-level and character-level scopes are first-class.
+7. PC, macOS and Steam Deck only.
+
+## 15. Open questions
+
+- Whether export data lives in a separate small add-on for a separate file.
+- The default post-processor's technology and how it is distributed.
+- Whether LibAddonMenu can express the topic tree directly.
+- The final name of the export library.
