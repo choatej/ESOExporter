@@ -195,26 +195,10 @@ add-on that owns `ESOExporterData` (the name is provisional; ask).
 
 #### Prompt for the next session
 
-Paste this to start the session:
+The standing instructions are in "Starting a session" in `CLAUDE.md`, so the prompt is:
 
 ```text
-Continue work on ESOExporter in this repo. Read CLAUDE.md first, then
-docs/ARCHITECTURE.md, docs/PROJECT_PLAN.md, docs/CI_AND_RELEASES.md and
-CONTRIBUTING.md. The handoff is tracked: "Where we are" in CLAUDE.md and "Kickoff
-notes for the next step" in the plan. There is no separate handoff file.
-
-First check which pull requests are merged (`gh pr list --state all`, `git log
-origin/main`). The schema and Python project PR (#7) and the next-steps docs PR
-may still be open; if so, stack on them per CONTRIBUTING.md and do not rebase.
-
-Before writing anything, ask me the kickoff questions in one batch, each with your
-recommendation, starting with which step to do first (step 10, CI, or step 7, topic
-tree). Follow the git workflow in CLAUDE.md: branch, PR, squash only, no rebase,
-noreply commit email. Do not merge anything unless I ask, and do not change
-repository settings (branch protection, secrets) unasked. uv may need installing
-(the project uses it for tools/python); tell me rather than installing system-wide.
-When you finish, update "Where we are", the plan's step table, and write the kickoff
-notes for the step after.
+Read CLAUDE.md, ask the kickoff questions, then do the next step.
 ```
 
 ## Risks and mitigations

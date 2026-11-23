@@ -13,6 +13,24 @@ post-processors that format the data outside the game. It is the maintainer's
 independent successor to their CharacterMarkdown fork. It shares no code with
 CharacterMarkdown (README credits it as "Inspired By").
 
+## Starting a session
+
+The maintainer starts every session with: *"Read CLAUDE.md, ask the kickoff questions,
+then do the next step."* This file is the single entry point; do this:
+
+1. Read this file, then the docs named at the top. Run `gh pr list --state all` and
+   check `git log origin/main` so you know what has merged. If an earlier PR is still
+   open, stack on it per CONTRIBUTING.md.
+2. Ask the questions in "Kickoff notes for the next step" in `docs/PROJECT_PLAN.md`, in
+   one batch, each with a recommendation. Do not start before they are answered.
+3. Do the step: branch, PR, squash only, no rebase, noreply commit email. Do not merge
+   unless asked, and do not change repository settings or secrets unasked.
+4. Finish by updating "Where we are" below, the plan's step table and the kickoff notes
+   for the step after, in the same PR.
+
+`uv` may not be installed (the Python project in `tools/python` uses it). Tell the
+maintainer rather than installing anything system-wide.
+
 ## Where we are
 
 Merged: scaffold, docs, Lua tooling, `LibExportStore` (the export library).
