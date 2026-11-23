@@ -93,3 +93,50 @@ def test_windows_paths_and_language_macros(tmp_path: Path) -> None:
     write(tmp_path, "src/Lib/Lib.lua", "")
     write(tmp_path, "src/Lib/sub/More.lua", "")
     assert hygiene.check_manifests(tmp_path) == []
+
+
+PLAN = """\
+| M0 | Foundation | none | done | [#1](https://github.com/o/r/pull/1) |
+| [#1](https://github.com/o/r/pull/1) | Scaffold | M0 | merged |
+| [#2](https://github.com/o/r/pull/2) | Docs | open |
+| planned | Later work (`feat/x`) | M1 | planned |
+"""
+
+
+def test_plan_rows_are_parsed(tmp_path: Path) -> None:
+    write(tmp_path, hygiene.PLAN_FILE, PLAN)
+    rows, problems = hygiene.plan_pr_rows(tmp_path)
+    assert rows == {1: "merged", 2: "open"}
+    assert problems == []
+
+
+def test_plan_rows_report_bad_rows(tmp_path: Path) -> None:
+    write(
+        tmp_path,
+        hygiene.PLAN_FILE,
+        "| [#3](https://github.com/o/r/pull/4) | Mismatch | merged |\n"
+        "| [#5](https://github.com/o/r/pull/5) | One | merged |\n"
+        "| [#5](https://github.com/o/r/pull/5) | Again | merged |\n"
+        "| [#6](https://github.com/o/r/pull/6) | Odd state | in review |\n",
+    )
+    problems = hygiene.check_plan_rows(tmp_path)
+    assert len(problems) == 3
+    assert any("links to pull request 4" in p for p in problems)
+    assert any("listed twice" in p for p in problems)
+    assert any("in review" in p for p in problems)
+
+
+def test_plan_without_a_plan_file_is_fine(tmp_path: Path) -> None:
+    assert hygiene.check_plan_rows(tmp_path) == []
+
+
+def test_plan_against_github() -> None:
+    rows = {1: "merged", 2: "open", 9: "open"}
+    actual = {1: "merged", 2: "merged", 3: "open", 4: "closed", 5: "merged"}
+    problems = hygiene.compare_plan_with_github(rows, actual)
+    assert len(problems) == 4
+    assert any("#2 is listed as open but is merged" in p for p in problems)
+    assert any("#9 is listed but is not" in p for p in problems)
+    assert any("#3 (open) has no row" in p for p in problems)
+    assert any("#5 (merged) has no row" in p for p in problems)
+    assert not any("#4" in p for p in problems)

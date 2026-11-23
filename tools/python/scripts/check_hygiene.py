@@ -1,17 +1,25 @@
 """Repository hygiene checks, run by CI and by `task hygiene`.
 
-Standard library only, so CI can run it without installing anything. Three checks:
+Standard library only, so CI can run it without installing anything. Four checks:
 
 * no tracked file is one that `.gitignore` or the personal-data rules say must stay local;
 * fixtures contain only names listed in `schema/fixtures/allowed-names.txt`;
 * each add-on folder in `src/` has a manifest of the same name that is well formed and lists
-  only files that exist.
+  only files that exist;
+* the pull request rows in `docs/PROJECT_PLAN.md` are well formed (link number matches the text,
+  no number twice, a known state).
 
-Usage: ``python3 tools/python/scripts/check_hygiene.py [repository root]``
+With `--prs` it also compares those rows with GitHub through the `gh` CLI: each row's state must
+match the pull request's, and every open or merged pull request must have a row. That needs
+network access and a logged-in `gh`, so it is not part of the default run or CI; the `open-pr`
+skill runs it (`task hygiene:prs`).
+
+Usage: ``python3 tools/python/scripts/check_hygiene.py [--prs] [repository root]``
 """
 
 from __future__ import annotations
 
+import json
 import re
 import subprocess
 import sys
@@ -24,6 +32,12 @@ FIXTURES_DIR = "schema/fixtures"
 
 # Mirrors the "Personal data" section of .gitignore, in case that file is edited.
 BLOCKED_PATTERNS = ("SavedVariables/*", "exports/*", "*_export_*.json")
+
+PLAN_FILE = "docs/PROJECT_PLAN.md"
+PLAN_STATES = {"open", "merged", "closed"}
+GITHUB_STATES = {"OPEN": "open", "MERGED": "merged", "CLOSED": "closed"}
+# A pull request row: `| [#12](.../pull/12) | title | ... | state |`; state is the last cell.
+PLAN_PR_ROW = re.compile(r"^\|\s*\[#(\d+)\]\([^)]*?/pull/(\d+)\)\s*\|.*\|\s*([^|]*?)\s*\|\s*$")
 
 ACCOUNT_NAME = re.compile(r"(?<![\w.@])@[A-Za-z0-9][A-Za-z0-9_\-]{2,}")
 CHARACTER_NAME = re.compile(r"""["']?name["']?\]?\s*[=:]\s*["']([^"']*)["']""")
@@ -137,18 +151,89 @@ def check_manifests(root: Path) -> list[str]:
     return problems
 
 
-def run_checks(root: Path) -> list[str]:
+def plan_pr_rows(root: Path) -> tuple[dict[int, str], list[str]]:
+    """Return {pull request number: state} from the plan, and any problems with the rows."""
+    path = root / PLAN_FILE
+    if not path.is_file():
+        return {}, []
+    rows: dict[int, str] = {}
+    problems: list[str] = []
+    for line_number, line in enumerate(path.read_text(encoding="utf-8").splitlines(), start=1):
+        match = PLAN_PR_ROW.match(line)
+        if not match:
+            continue
+        label = f"{PLAN_FILE}:{line_number}"
+        text_number, link_number, state = match.groups()
+        number = int(text_number)
+        if text_number != link_number:
+            problems.append(f"{label}: #{text_number} links to pull request {link_number}")
+        if number in rows:
+            problems.append(f"{label}: #{number} is listed twice")
+        if state not in PLAN_STATES:
+            problems.append(
+                f"{label}: #{number} has state {state!r}, expected one of {sorted(PLAN_STATES)}"
+            )
+        rows[number] = state
+    return rows, problems
+
+
+def check_plan_rows(root: Path) -> list[str]:
+    return plan_pr_rows(root)[1]
+
+
+def github_pull_requests(root: Path) -> dict[int, str]:
+    result = subprocess.run(
+        ["gh", "pr", "list", "--state", "all", "--limit", "500", "--json", "number,state"],
+        check=True,
+        capture_output=True,
+        text=True,
+        cwd=root,
+    )
+    return {item["number"]: GITHUB_STATES[item["state"]] for item in json.loads(result.stdout)}
+
+
+def compare_plan_with_github(rows: dict[int, str], actual: dict[int, str]) -> list[str]:
+    problems = []
+    for number, state in sorted(rows.items()):
+        if number not in actual:
+            problems.append(f"{PLAN_FILE}: #{number} is listed but is not a pull request on GitHub")
+        elif actual[number] != state:
+            problems.append(
+                f"{PLAN_FILE}: #{number} is listed as {state} but is {actual[number]} on GitHub"
+            )
+    for number, state in sorted(actual.items()):
+        if state != "closed" and number not in rows:
+            problems.append(
+                f"{PLAN_FILE}: #{number} ({state}) has no row; add it to the pull request tables"
+            )
+    return problems
+
+
+def check_plan_against_github(root: Path) -> list[str]:
+    rows, _ = plan_pr_rows(root)
+    try:
+        actual = github_pull_requests(root)
+    except (OSError, subprocess.CalledProcessError, KeyError, ValueError) as error:
+        return [f"could not read pull requests with `gh pr list`: {error}"]
+    return compare_plan_with_github(rows, actual)
+
+
+def run_checks(root: Path, online: bool = False) -> list[str]:
     files = tracked_files(root)
     return [
         *check_blocked_paths(files, ignored_but_tracked(root)),
         *check_fixture_names(root, files),
         *check_manifests(root),
+        *check_plan_rows(root),
+        *(check_plan_against_github(root) if online else []),
     ]
 
 
 def main(argv: list[str]) -> int:
-    root = Path(argv[1]) if len(argv) > 1 else Path(__file__).resolve().parents[3]
-    problems = run_checks(root)
+    args = [arg for arg in argv[1:] if arg != "--prs"]
+    online = len(args) != len(argv) - 1
+    root = Path(args[0]) if args else Path(__file__).resolve().parents[3]
+    problems = run_checks(root, online=online)
     for problem in problems:
         print(f"hygiene: {problem}", file=sys.stderr)
     if problems:

@@ -7,6 +7,8 @@ the project follows [Semantic Versioning](https://semver.org/) once it is releas
 ## [Unreleased]
 
 ### Added
+- An `open-pr` project skill for the order of PR bookkeeping, and hygiene checks that the plan's
+  pull request rows are well formed (always) and match GitHub (`task hygiene:prs`).
 - Design: the shared data models of both post-processors are generated from the schema and
   checked in CI; everything else in a post-processor stays static code. Recorded in the
   architecture (3.4, 11, 13, 14, 15) and the plan (M5, M6, risks, open decisions, roadmap).
