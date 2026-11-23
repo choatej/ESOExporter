@@ -184,37 +184,20 @@ milestone work. CI is here, not in M0, because M0 was done before it was planned
 | [#6](https://github.com/choatej/ESOExporter/pull/6) | Make the tracked kickoff notes the handoff | merged |
 | [#8](https://github.com/choatej/ESOExporter/pull/8) | Next-step kickoff notes, a session prompt, and `CLAUDE.md` as the single entry point | merged |
 | [#9](https://github.com/choatej/ESOExporter/pull/9) | Tie the roadmap to pull requests and order it by milestone | open |
-| planned | CI workflow and checks (`ci/workflow`) | planned |
+| [#10](https://github.com/choatej/ESOExporter/pull/10) | CI workflow and checks: `ci.yml`, Dependabot, repo hygiene script, CI badge | open |
 
-The CI and release rows are specified in [CI_AND_RELEASES.md](CI_AND_RELEASES.md). The CI
-workflow is independent of the product work and worth doing early; the maintainer
-picks the order.
+The CI and release plan is [CI_AND_RELEASES.md](CI_AND_RELEASES.md). The release rows in
+M8 come from it.
 
 ### Kickoff notes for the next step
 
 Replace this section when the next step's PR merges. Before writing anything, ask
 the maintainer the questions below in one batch, each with a recommendation.
 
-**Which first.** Two pull requests are ready and independent: the topic tree (product
-work) and the CI workflow (specified in [CI_AND_RELEASES.md](CI_AND_RELEASES.md)).
-Recommendation: CI first, so every later pull request is checked. If CI goes first,
-its questions are the first list below and the topic tree's follow after it.
-
-**CI workflow** (`ci/workflow`). Ask:
-
-1. **Python matrix.** Recommendation: 3.11 and 3.13 on Linux, 3.12 on Windows and macOS.
-2. **Personal-data guard.** Which invented names may appear in fixtures (the allow
-   list), and whether to scan for `@account`-style names.
-3. **Branch protection.** Adding the CI jobs as required checks on `main` is a
-   repository settings change. Recommendation: the maintainer does it, or says so
-   explicitly, after the first green run. Do not change settings unasked.
-4. **Action pinning.** Pin third-party actions to commit SHAs with Dependabot
-   (recommended), or to version tags.
-
-Then build `.github/workflows/ci.yml` (jobs `pr-title`, `lua`, `python`, `package`
-as far as packaging exists, `repo-hygiene`), `.github/dependabot.yml`, the README CI
-badge, and update the roadmap tables and the docs. The packaging and release rows follow
-in order.
+**Housekeeping first.** CI is in place ([#10](https://github.com/choatej/ESOExporter/pull/10)). Check whether the maintainer has
+added its jobs (`pr-title`, `lua`, `python (...)`, `repo-hygiene`) as required status
+checks on `main`; that is a repository settings change the maintainer makes, so ask
+and do not change it unasked.
 
 **Topic tree v1** (`feat/topic-tree`). Ask:
 

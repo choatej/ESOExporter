@@ -94,7 +94,8 @@ task test:python   # Python tests, including schema validation (needs uv)
 task python:check  # Python format check, lint, type check and tests
 ```
 
-CI will run `task check` later. For behaviour that cannot be tested offline,
+CI runs the same checks on every pull request (`.github/workflows/ci.yml`), and the PR
+title must be a Conventional Commit. For behaviour that cannot be tested offline,
 describe how you verified it in game and which game version you used.
 
 ## Reporting bugs

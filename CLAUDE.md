@@ -37,15 +37,17 @@ Merged (#1 to #8): scaffold, docs, Lua tooling, `LibExportStore` (the export lib
 schema v1 (`schema/v1/export.schema.json`), a hand-built fixture
 (`schema/fixtures/hand-built/`), a Python SavedVariables reader and schema tests
 (`tools/python`, a uv project with black, ruff, pyrefly and pytest; `task python:check`),
-and the CI and release plan. M0 is done; M1 has one pull request left (the topic tree). Decided with the maintainer in #7: keep the name `LibExportStore`; export data
+and the CI and release plan. M0 is done; M1 has one pull request left (the topic tree).
+CI is in review in #10 (`.github/workflows/ci.yml`; jobs `pr-title`, `lua`, `python`,
+`repo-hygiene`; Dependabot). Decided with the maintainer in #7: keep the name `LibExportStore`; export data
 lives in a separate small data add-on (provisionally `ESOExporterData`) with its own
 SavedVariables file; JSON Schema draft 2020-12 validated with Python `jsonschema`;
 storage layout as in ARCHITECTURE.md 4.1.
-A draft CI and release plan is in `docs/CI_AND_RELEASES.md` (semver from conventional
-commits via release-please, release artifacts, post-processor packaging); nothing in it
-is implemented yet, and it has open decisions for the maintainer.
-Next (see the pull request roadmap in the plan): two independent pull requests are
-ready, the CI workflow (recommended first) and the topic tree. After those: add-on skeleton
+The CI and release plan is `docs/CI_AND_RELEASES.md` (semver from conventional commits
+via release-please, release artifacts, post-processor packaging); only the CI workflow is
+implemented, and the rest has open decisions for the maintainer. The maintainer adds the
+CI jobs as required checks on `main` (a settings change; do not make it unasked).
+Next (see the pull request roadmap in the plan): the topic tree. After that: add-on skeleton
 with topic registry and runner, then the character identity extractor and `save`
 command. Until the add-on exists there is no real output, so the fixture is hand-built
 to the schema.
@@ -104,6 +106,7 @@ Needs Task, LuaJIT, StyLua and Luacheck (installed on the maintainer's machine) 
 task check     # format check, luacheck, offline tests
 task format    # apply StyLua
 task test      # Lua tests only; `task test -- export` filters by spec name
+task hygiene       # repo hygiene: no personal data, fixture names, manifests
 task python:check  # Python (tools/python, a uv project): black, ruff, pyrefly, pytest
 task test:python   # Python tests only, including schema validation
 lua5.1 tests/lua/run.lua   # also run under stock Lua 5.1, closer to the game

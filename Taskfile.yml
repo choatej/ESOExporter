@@ -51,6 +51,11 @@ tasks:
     cmds:
       - uv run pytest {{.CLI_ARGS}}
 
+  hygiene:
+    desc: Repository hygiene (no personal data, allow-listed fixture names, manifests)
+    cmds:
+      - python3 tools/python/scripts/check_hygiene.py
+
   check:
     desc: Everything CI will run later - formatting, lint and tests
     cmds:
@@ -58,3 +63,4 @@ tasks:
       - task: lint
       - task: test
       - task: python:check
+      - task: hygiene
