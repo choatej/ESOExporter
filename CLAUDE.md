@@ -20,6 +20,9 @@ topic tree v1, add-on skeleton with topic registry and runner, character identit
 extractor and `save` command. Until the add-on exists there is no real output, so
 the first fixture is hand-built to the schema rather than scrubbed from real data.
 
+The next step's questions and scope are in "Kickoff notes" in the plan. Ask those
+questions first.
+
 **Decisions that belong to the maintainer. Ask, do not decide silently:**
 the export library's final name (`LibExportStore` is provisional), whether export
 data lives in a separate small add-on to get its own SavedVariables file, the

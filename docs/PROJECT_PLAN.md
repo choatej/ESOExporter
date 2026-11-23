@@ -131,6 +131,29 @@ and a post-processor mapping for each entry.
 
 Later pull requests are added here as earlier ones merge.
 
+### Kickoff notes for the next step (PR 6: schema v1 and a first fixture)
+
+Replace this section when the PR merges. Before writing anything, ask the
+maintainer these questions in one batch, each with a recommendation:
+
+1. **Library name.** `LibExportStore` is provisional.
+2. **One add-on or two.** SavedVariables are written to one file per add-on holding
+   every global it lists *(verify)*. A small separate data add-on gives exports their
+   own file, so a user can clear them by deleting it without losing settings.
+   Recommendation: separate.
+3. **Schema validation.** The Lua toolchain has no JSON Schema validator, so choose
+   a Python test dependency or a small hand-written checker.
+4. **Storage layout.** Confirm or change the draft in ARCHITECTURE.md section 4.1
+   (account scope, characters keyed by character id, entry shape).
+
+Then build: a `schema/` directory with the envelope and entry schemas and the
+`$parts` convention from `LibExportStore`; a fixture hand-built to the schema (no
+add-on output exists yet); and a test that validates it. Update ARCHITECTURE.md,
+this table, `CLAUDE.md` "Where we are", and the changelog in the same PR.
+
+The step after is PR 7, the topic tree, starting from `data/config/tree.json` on
+the maintainer's fork branch `feat/config-tree` (see `CLAUDE.md`).
+
 ## Risks and mitigations
 
 | Risk | Mitigation |
