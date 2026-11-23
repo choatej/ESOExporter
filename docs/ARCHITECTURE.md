@@ -90,7 +90,8 @@ settled. Until then it lives in this repository.
 The versioned contract between the add-on and every post-processor, kept in
 `schema/`:
 
-- The storage envelope and the per-topic shapes (JSON Schema).
+- The storage envelope (`schema/v1/export.schema.json`, JSON Schema draft 2020-12)
+  and, as topics are added, the per-topic shapes. See `schema/README.md`.
 - The topic tree (`tree.json`): ids, labels, parents, defaults and cost class.
   It is the single source of truth for the settings screen and for the
   post-processors' topic selection.
@@ -112,7 +113,11 @@ formats (JSON, lean Markdown, build summaries) are added per tool.
 
 ## 4. Data model
 
-### 4.1 Storage layout (draft)
+### 4.1 Storage layout (schema v1)
+
+The export lives in its own global, `ESOExporterData`, owned by a small separate data
+add-on so it gets its own SavedVariables file (see section 7). The envelope is
+specified in `schema/v1/export.schema.json`.
 
 ```lua
 ESOExporterData = {
@@ -134,10 +139,18 @@ ESOExporterData = {
 }
 ```
 
-An `<entry>` is `{ kind = "data", timestamp = <epoch>, data = <table>, report = <table> }`.
-Characters are keyed by character id because names can change and repeat across
-servers *(verify)*. Account-level and character-level topics are separate scopes
-so the layout does not assume "character".
+An `<entry>` is `{ kind = "data", timestamp = <epoch>, data = <table>, report = <table> }`
+(what `LibExportStore.NewEntry` builds). Characters are keyed by character id, a
+decimal string, because names can change and repeat across servers *(verify)*.
+Account-level and character-level topics are separate scopes so the layout does not
+assume "character".
+
+Rules the schema enforces: `meta` is required and `meta.schema` is 1; the top level
+holds only `meta`, `account` and `characters`; no string reaches 2000 characters; the
+key `$parts` appears only in a long-string table (`{ ["$parts"] = { ... } }`, joined
+with no separator). Empty tables arrive as `{}` whether they were lists or objects,
+because Lua cannot tell them apart; readers must allow for that. Adding optional
+fields inside `meta` is not a breaking change. Adding a top-level key is.
 
 ### 4.2 Raw data
 
@@ -190,7 +203,9 @@ so the layout does not assume "character".
 - `SavedVariables/<AddOn>.lua` contains every global the add-on lists
   *(verify)*. Settings and exports therefore share one file unless the export
   data is owned by a separate small add-on. Splitting keeps the data file easy
-  to find, parse and delete. This is an open decision.
+  to find, parse and delete. **Decided: separate.** A small data add-on
+  (provisionally `ESOExporterData`, which lists the `ESOExporterData` global) owns the
+  export file; the main add-on depends on it. It is created with the add-on skeleton.
 - SavedVariables are loaded into memory at login, so stored exports cost memory
   and load time until cleared. Exports are therefore meant to be short-lived.
 - The file is written only on `/reloadui`, logout or quit, so a clear reaches
@@ -232,6 +247,10 @@ category is summarized in the project plan.
 
 - **Offline Lua tests** under LuaJIT (Lua 5.1) for all pure code: the export
   library, the topic tree, extractors against stubbed game functions.
+- **Schema validation** in Python (`jsonschema`), run by `task test:python`: the
+  fixture must validate and deliberately broken copies must not. The Lua side checks
+  the same fixture loads the way the game loads it and that its reports match the
+  library's. Both post-processors validate against the same schema file.
 - **Golden fixtures** shared by both post-processors.
 - **In-game checklist** for what cannot be stubbed: settings panel, login
   reminder, real extraction on a real character, SavedVariables round trip.
@@ -249,8 +268,8 @@ category is summarized in the project plan.
 ```
 src/ESOExporter/       the add-on (folder name must match its manifest name)
 src/LibExportStore/    the export library (own manifest, IsLibrary)
-schema/                envelope and topic schemas, tree.json, fixtures
-tools/python/          Python post-processor
+schema/                v1/ envelope and topic schemas, tree.json, fixtures/
+tools/python/          Python post-processor (so far: a SavedVariables reader and schema tests)
 tools/web/             default post-processor
 tests/lua/             offline Lua tests
 docs/                  this file and the project plan
@@ -262,13 +281,13 @@ docs/                  this file and the project plan
 2. Formatting lives in post-processors only.
 3. Two post-processors, one schema, shared fixtures.
 4. The export library is separate, dependency-free and owns no SavedVariables.
+   Export data lives in a separate small data add-on with its own SavedVariables file.
 5. Data is stored raw; names and links are resolved outside the game.
 6. Account-level and character-level scopes are first-class.
 7. PC, macOS and Steam Deck only.
 
 ## 15. Open questions
 
-- Whether export data lives in a separate small add-on for a separate file.
 - The default post-processor's technology and how it is distributed.
 - Whether LibAddonMenu can express the topic tree directly.
 - The final name of the export library.

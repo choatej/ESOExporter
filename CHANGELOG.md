@@ -16,3 +16,6 @@ the project follows [Semantic Versioning](https://semver.org/) once it is releas
   The handoff between sessions is the tracked kickoff notes in the project plan.
 - Developer tooling: StyLua and Luacheck configuration, a Taskfile, and an
   offline Lua test runner (LuaJIT).
+- Schema v1: a JSON Schema for the export envelope (`schema/v1/export.schema.json`), a
+  hand-built fixture, a safe Python reader for SavedVariables files, and tests that
+  validate the fixture and reject broken copies (`task test:python`).

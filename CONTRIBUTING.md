@@ -85,9 +85,10 @@ Directories appear as the corresponding pull requests land.
 You need [Task](https://taskfile.dev), LuaJIT, StyLua and Luacheck on your path.
 
 ```sh
-task check    # formatting, lint and the offline Lua tests
+task check    # formatting, lint, the offline Lua tests and the Python tests
 task format   # apply formatting
-task test     # tests only; see tests/README.md
+task test     # Lua tests only; see tests/README.md
+task test:python   # schema and Python tests (pip install -r tools/python/requirements.txt)
 ```
 
 CI will run `task check` later. For behaviour that cannot be tested offline,

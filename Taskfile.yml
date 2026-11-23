@@ -29,9 +29,15 @@ tasks:
     cmds:
       - luajit tests/lua/run.lua {{.CLI_ARGS}}
 
+  test:python:
+    desc: Run the Python tests, including schema validation (needs jsonschema, see tools/python/requirements.txt)
+    cmds:
+      - PYTHONPATH=tools/python python3 -m unittest discover -s tools/python/tests -t tools/python {{.CLI_ARGS}}
+
   check:
     desc: Everything CI will run later - formatting, lint and tests
     cmds:
       - task: format:check
       - task: lint
       - task: test
+      - task: test:python

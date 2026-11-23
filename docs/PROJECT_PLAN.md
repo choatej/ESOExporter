@@ -124,7 +124,7 @@ and a post-processor mapping for each entry.
 | 3 | `chore/dev-tooling` | Lua tooling and offline test runner | M0 | merged |
 | 4 | `feat/export-lib` | `LibExportStore` | M1 | merged |
 | 5 | `docs/agent-context` | `CLAUDE.md` for agent sessions; update this table | M0 | merged |
-| 6 | | Schema v1 and first fixture | M1 | planned |
+| 6 | `feat/schema-v1` | Schema v1 and a first fixture | M1 | in review |
 | 7 | | Topic tree v1 | M1 | planned |
 | 8 | | Add-on skeleton, topic registry and runner | M2 | planned |
 | 9 | | Character identity extractor and `save` command | M2 | planned |
@@ -132,28 +132,36 @@ and a post-processor mapping for each entry.
 Step numbers are positions in this roadmap, not GitHub pull request numbers (small
 fix-up PRs do not get a step). Later steps are added here as earlier ones merge.
 
-### Kickoff notes for the next step (step 6: schema v1 and a first fixture)
+### Kickoff notes for the next step (step 7: topic tree v1)
 
 Replace this section when the PR merges. Before writing anything, ask the
 maintainer these questions in one batch, each with a recommendation:
 
-1. **Library name.** `LibExportStore` is provisional.
-2. **One add-on or two.** SavedVariables are written to one file per add-on holding
-   every global it lists *(verify)*. A small separate data add-on gives exports their
-   own file, so a user can clear them by deleting it without losing settings.
-   Recommendation: separate.
-3. **Schema validation.** The Lua toolchain has no JSON Schema validator, so choose
-   a Python test dependency or a small hand-written checker.
-4. **Storage layout.** Confirm or change the draft in ARCHITECTURE.md section 4.1
-   (account scope, characters keyed by character id, entry shape).
+1. **Port scope.** `data/config/tree.json` on the fork branch `feat/config-tree` is
+   CharacterMarkdown-shaped (legacy `settings` keys, `topics` that feed its Markdown
+   renderer, `format` and `profile` domains). Recommendation: port the structure and
+   gate semantics, drop the legacy settings mapping and the `format` domain, and keep
+   `content` nodes only. Check `git log` for authorship and review lines derived from
+   upstream first (see `CLAUDE.md`).
+2. **Topic ids.** Storage keys under `topics` must be the tree's node ids. The tree
+   uses snake_case path segments (`champion_points`) and the schema's provisional
+   pattern is `^[a-z][A-Za-z0-9_.]*$`. Decide whether a topic key is a leaf id or a
+   full path, then tighten the schema pattern to match.
+3. **Scope per node.** Mark each topic `account` or `character`, since the layout
+   keeps them apart, and give each a cost class (`light` or `heavy`). Recommendation:
+   `heavy` for inventory and achievements, as the architecture says.
+4. **Validation.** Recommendation: a JSON Schema for `tree.json` in `schema/v1/`, checked
+   by the existing Python tests, plus a Lua spec that loads the tree and derives
+   effective states with the gate rules.
 
-Then build: a `schema/` directory with the envelope and entry schemas and the
-`$parts` convention from `LibExportStore`; a fixture hand-built to the schema (no
-add-on output exists yet); and a test that validates it. Update ARCHITECTURE.md,
-this table, `CLAUDE.md` "Where we are", and the changelog in the same PR.
+Then build: `schema/v1/tree.json` (and its schema), the gate-resolution code in Lua
+as pure functions with offline tests, and the update to the fixture's topic ids if
+the tree renames them (`fixtureLongText` and `fixtureDropped` are synthetic and stay).
+Update ARCHITECTURE.md section 6, this table, `CLAUDE.md` "Where we are", and the
+changelog in the same PR.
 
-The step after is step 7, the topic tree, starting from `data/config/tree.json` on
-the maintainer's fork branch `feat/config-tree` (see `CLAUDE.md`).
+The step after is step 8, the add-on skeleton, which also creates the small data
+add-on that owns `ESOExporterData` (the name is provisional; ask).
 
 ## Risks and mitigations
 
@@ -170,11 +178,11 @@ the maintainer's fork branch `feat/config-tree` (see `CLAUDE.md`).
 ## Open decisions
 
 1. Name of the export library (currently `LibExportStore`).
-2. Whether export data lives in a separate small add-on to get its own file.
+2. ~~Whether export data lives in a separate small add-on to get its own file.~~
+   Decided in step 6: separate.
 3. Technology and distribution of the default post-processor.
-4. Schema language details (JSON Schema draft) and how schemas are validated: the
-   Lua toolchain has no JSON Schema validator, so validation needs a Python test
-   dependency or a small hand-written checker.
+4. ~~Schema language details and validation.~~ Decided in step 6: JSON Schema draft
+   2020-12, validated with Python `jsonschema` in `task test:python`.
 5. Slash command names.
 
 ## Assumptions to verify in game

@@ -17,6 +17,9 @@ each spec, so a spec cannot leak state into the next.
 `tests/lua/eso_stubs.lua` holds `Load(path)` for loading project source and any
 stand-ins for the game environment. Add a stub only when a module needs one.
 
+Python tests (`task test:python`) live in `tools/python/tests/` and use the standard
+`unittest` runner. They need `jsonschema` (`pip install -r tools/python/requirements.txt`).
+
 What cannot be tested offline (the settings panel, the login reminder, real
 extraction, the SavedVariables round trip) is verified in game and described in the
 pull request.
