@@ -140,10 +140,32 @@ independent of the product work and worth doing early; the maintainer picks the 
 Step numbers are positions in this roadmap, not GitHub pull request numbers (small
 fix-up PRs do not get a step). Later steps are added here as earlier ones merge.
 
-### Kickoff notes for the next step (step 7: topic tree v1)
+### Kickoff notes for the next step
 
-Replace this section when the PR merges. Before writing anything, ask the
-maintainer these questions in one batch, each with a recommendation:
+Replace this section when the next step's PR merges. Before writing anything, ask
+the maintainer the questions below in one batch, each with a recommendation.
+
+**Which step first.** Two steps are ready and independent: step 7 (topic tree v1,
+product work) and step 10 (CI, specified in [CI_AND_RELEASES.md](CI_AND_RELEASES.md)).
+Recommendation: step 10 first, so every later pull request is checked. If step 10 goes
+first, its questions are the first list below and step 7's follow after it.
+
+**Step 10: CI workflow** (`ci/workflow`). Ask:
+
+1. **Python matrix.** Recommendation: 3.11 and 3.13 on Linux, 3.12 on Windows and macOS.
+2. **Personal-data guard.** Which invented names may appear in fixtures (the allow
+   list), and whether to scan for `@account`-style names.
+3. **Branch protection.** Adding the CI jobs as required checks on `main` is a
+   repository settings change. Recommendation: the maintainer does it, or says so
+   explicitly, after the first green run. Do not change settings unasked.
+4. **Action pinning.** Pin third-party actions to commit SHAs with Dependabot
+   (recommended), or to version tags.
+
+Then build `.github/workflows/ci.yml` (jobs `pr-title`, `lua`, `python`, `package`
+as far as packaging exists, `repo-hygiene`), `.github/dependabot.yml`, the README CI
+badge, and update this table and the docs. Steps 11 to 13 follow in order.
+
+**Step 7: topic tree v1.** Ask:
 
 1. **Port scope.** `data/config/tree.json` on the fork branch `feat/config-tree` is
    CharacterMarkdown-shaped (legacy `settings` keys, `topics` that feed its Markdown
@@ -170,6 +192,14 @@ changelog in the same PR.
 
 The step after is step 8, the add-on skeleton, which also creates the small data
 add-on that owns `ESOExporterData` (the name is provisional; ask).
+
+#### Prompt for the next session
+
+The standing instructions are in "Starting a session" in `CLAUDE.md`, so the prompt is:
+
+```text
+Read CLAUDE.md, ask the kickoff questions, then do the next step.
+```
 
 ## Risks and mitigations
 
