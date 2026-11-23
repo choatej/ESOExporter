@@ -184,7 +184,7 @@ is where their numbers and links go once they are opened.
 
 | Branch | Title | Milestone | State |
 |---|---|---|---|
-| `ci/workflow` | CI workflow, PR title check, Dependabot, branch-protection checks, README badge | M0 | planned |
+| `ci/workflow` | CI workflow, PR title check, Dependabot, branch-protection checks, README badge | housekeeping | planned |
 | `feat/packaging` | Add-on packaging and manifest check scripts, with tests | M8 | planned |
 | `ci/release-please` | release-please config, version markers, `AddOnVersion` derivation, changelog switch | M8 | planned |
 | `ci/release-artifacts` | Release job: build, checksums, attestations, upload; PyPI trusted publishing | M8 | planned |

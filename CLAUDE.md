@@ -37,8 +37,7 @@ Merged (#1 to #8): scaffold, docs, Lua tooling, `LibExportStore` (the export lib
 schema v1 (`schema/v1/export.schema.json`), a hand-built fixture
 (`schema/fixtures/hand-built/`), a Python SavedVariables reader and schema tests
 (`tools/python`, a uv project with black, ruff, pyrefly and pytest; `task python:check`),
-and the CI and release plan. M0 and M1 each have one pull request left (CI workflow,
-topic tree). Decided with the maintainer in #7: keep the name `LibExportStore`; export data
+and the CI and release plan. M0 is done; M1 has one pull request left (the topic tree). Decided with the maintainer in #7: keep the name `LibExportStore`; export data
 lives in a separate small data add-on (provisionally `ESOExporterData`) with its own
 SavedVariables file; JSON Schema draft 2020-12 validated with Python `jsonschema`;
 storage layout as in ARCHITECTURE.md 4.1.

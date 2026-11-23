@@ -28,10 +28,7 @@ met and its pull requests are merged.
 - Scaffold, license, contribution workflow, issue and PR templates.
 - Architecture and plan documents.
 - Developer tooling: StyLua, Luacheck, offline Lua test runner, task runner.
-- A CI workflow that runs the same checks on every pull request (see
-  [CI_AND_RELEASES.md](CI_AND_RELEASES.md)).
-
-*Exit:* `task check` passes locally on a clean checkout, and CI runs it on pull requests.
+*Exit:* `task check` passes locally on a clean checkout.
 
 ### M1: Export library and schema v1
 
@@ -111,7 +108,8 @@ and a post-processor mapping for each entry.
 
 ## Order and dependencies
 
-- M0, M1, M2, M3 run in that order.
+- M0, M1, M2, M3 run in that order. Housekeeping pull requests (CI, docs, handoff)
+  belong to no milestone and can land at any point.
 - M4 (settings), M5 (Python), and M7 (remaining extractors) can all start once
   M3 is done. M5 only needs real output from M2 or M3.
 - M6 (default post-processor) follows M5, because it reuses its fixtures and model.
@@ -121,17 +119,23 @@ and a post-processor mapping for each entry.
 
 ### Milestone status
 
-| Milestone | Name | State | Pull requests |
-|---|---|---|---|
-| M0 | Foundation | in progress: CI workflow remains | [#1](https://github.com/choatej/ESOExporter/pull/1), [#2](https://github.com/choatej/ESOExporter/pull/2), [#3](https://github.com/choatej/ESOExporter/pull/3), [#5](https://github.com/choatej/ESOExporter/pull/5), [#6](https://github.com/choatej/ESOExporter/pull/6), [#8](https://github.com/choatej/ESOExporter/pull/8), [#9](https://github.com/choatej/ESOExporter/pull/9) |
-| M1 | Export library and schema v1 | in progress: topic tree remains | [#4](https://github.com/choatej/ESOExporter/pull/4), [#7](https://github.com/choatej/ESOExporter/pull/7) |
-| M2 | Add-on skeleton | not started | |
-| M3 | First extractors | not started | |
-| M4 | Settings and reminders | not started | |
-| M5 | Python post-processor | not started | |
-| M6 | Default post-processor | not started | |
-| M7 | Remaining extractors | not started | |
-| M8 | First release | not started | |
+Milestones are listed in order. "Needs" is what must be done before the milestone starts;
+see "Order and dependencies" above.
+
+| Milestone | Name | Needs | State | Milestone pull requests |
+|---|---|---|---|---|
+| M0 | Foundation | none | done | [#1](https://github.com/choatej/ESOExporter/pull/1), [#2](https://github.com/choatej/ESOExporter/pull/2), [#3](https://github.com/choatej/ESOExporter/pull/3) |
+| M1 | Export library and schema v1 | M0 | in progress: topic tree remains | [#4](https://github.com/choatej/ESOExporter/pull/4), [#7](https://github.com/choatej/ESOExporter/pull/7) |
+| M2 | Add-on skeleton | M1 | not started | |
+| M3 | First extractors | M2 | not started | |
+| M4 | Settings and reminders | M3 | not started | |
+| M5 | Python post-processor | real output from M2 or M3 | not started | |
+| M6 | Default post-processor | M5 | not started | |
+| M7 | Remaining extractors | M3 | not started | |
+| M8 | First release | M4, M6, enough of M7 | not started | |
+
+M4, M5 and M7 are independent of each other, so their rows below are in milestone
+order, not delivery order.
 
 ### Pull requests
 
@@ -140,18 +144,15 @@ until its pull request is opened; the pull request that opens it fills the numbe
 Rows for M3 to M8 are an outline and are split or merged when the milestone starts.
 A branch name is shown for planned work so it can be found; merged branches are deleted.
 
+**Milestone work**, in milestone order. Rows within a milestone are in delivery order.
+
 | PR | Title | Milestone | State |
 |---|---|---|---|
 | [#1](https://github.com/choatej/ESOExporter/pull/1) | Project scaffold and architecture notes | M0 | merged |
 | [#2](https://github.com/choatej/ESOExporter/pull/2) | Architecture and project plan | M0 | merged |
 | [#3](https://github.com/choatej/ESOExporter/pull/3) | Lua tooling and offline test runner | M0 | merged |
 | [#4](https://github.com/choatej/ESOExporter/pull/4) | `LibExportStore` | M1 | merged |
-| [#5](https://github.com/choatej/ESOExporter/pull/5) | `CLAUDE.md` for agent sessions | M0 | merged |
-| [#6](https://github.com/choatej/ESOExporter/pull/6) | Make the tracked kickoff notes the handoff | M0 | merged |
 | [#7](https://github.com/choatej/ESOExporter/pull/7) | Schema v1, a hand-built fixture, the Python project (uv), and the CI and release plan | M1 | merged |
-| [#8](https://github.com/choatej/ESOExporter/pull/8) | Next-step kickoff notes, a session prompt, and `CLAUDE.md` as the single entry point | M0 | merged |
-| [#9](https://github.com/choatej/ESOExporter/pull/9) | Tie the roadmap to pull requests and cover every milestone | M0 | open |
-| planned | CI workflow and checks (`ci/workflow`) | M0 | planned |
 | planned | Topic tree v1 (`feat/topic-tree`) | M1 | planned |
 | planned | Add-on skeleton, data add-on, topic registry and runner (`feat/addon-skeleton`) | M2 | planned |
 | planned | Character identity extractor and `save` command (`feat/identity-extractor`) | M2 | planned |
@@ -172,6 +173,18 @@ A branch name is shown for planned work so it can be found; merged branches are 
 | planned | release-please versioning and release PRs (`ci/release-please`) | M8 | planned |
 | planned | Release artifacts and PyPI publishing (`ci/release-artifacts`) | M8 | planned |
 | planned | User documentation (`docs/user-guide`) | M8 | planned |
+
+**Housekeeping.** Tooling, docs and handoff changes that belong to no milestone and
+gate none. They happen whenever they are needed, which is why they are numbered between
+milestone work. CI is here, not in M0, because M0 was done before it was planned.
+
+| PR | Title | State |
+|---|---|---|
+| [#5](https://github.com/choatej/ESOExporter/pull/5) | `CLAUDE.md` for agent sessions | merged |
+| [#6](https://github.com/choatej/ESOExporter/pull/6) | Make the tracked kickoff notes the handoff | merged |
+| [#8](https://github.com/choatej/ESOExporter/pull/8) | Next-step kickoff notes, a session prompt, and `CLAUDE.md` as the single entry point | merged |
+| [#9](https://github.com/choatej/ESOExporter/pull/9) | Tie the roadmap to pull requests and order it by milestone | open |
+| planned | CI workflow and checks (`ci/workflow`) | planned |
 
 The CI and release rows are specified in [CI_AND_RELEASES.md](CI_AND_RELEASES.md). The CI
 workflow is independent of the product work and worth doing early; the maintainer
