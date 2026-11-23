@@ -76,18 +76,22 @@ Directories appear as the corresponding pull requests land.
 - **Lua** targets ESO's Lua 5.1: no `goto`, no 5.2+ features. Formatting is
   [StyLua](https://github.com/JohnnyMorganz/StyLua) (`stylua.toml`) and linting is
   [Luacheck](https://github.com/lunarmodules/luacheck) (`.luacheckrc`).
-- **Python** is formatted and linted with Ruff.
+- **Python** (`tools/python`, a [uv](https://docs.astral.sh/uv/) project) is formatted with
+  Black, linted with Ruff, type checked with Pyrefly and tested with pytest.
 - Add-ons cannot write files, and a SavedVariables string must stay under 2000
   characters; keep both in mind when touching storage code.
 
 ## Tests
 
-You need [Task](https://taskfile.dev), LuaJIT, StyLua and Luacheck on your path.
+You need [Task](https://taskfile.dev), LuaJIT, StyLua, Luacheck and
+[uv](https://docs.astral.sh/uv/) on your path.
 
 ```sh
-task check    # formatting, lint and the offline Lua tests
+task check    # formatting, lint, the offline Lua tests and the Python tests
 task format   # apply formatting
-task test     # tests only; see tests/README.md
+task test     # Lua tests only; see tests/README.md
+task test:python   # Python tests, including schema validation (needs uv)
+task python:check  # Python format check, lint, type check and tests
 ```
 
 CI will run `task check` later. For behaviour that cannot be tested offline,

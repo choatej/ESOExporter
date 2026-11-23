@@ -1,0 +1,130 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/choatej/ESOExporter/schema/v1/export.schema.json",
+  "title": "ESOExporter export, schema version 1",
+  "description": "The storage envelope written to the ESOExporterData SavedVariables global. It fixes the layout (meta, account and character scopes, entries) and the value rules every post-processor relies on. The shape of each topic's data is not part of the envelope; each topic adds its own schema in the pull request that adds the topic.",
+  "type": "object",
+  "required": ["meta"],
+  "additionalProperties": false,
+  "properties": {
+    "meta": { "$ref": "#/$defs/meta" },
+    "account": {
+      "description": "Account-level topics.",
+      "type": "object",
+      "required": ["topics"],
+      "additionalProperties": false,
+      "properties": {
+        "topics": { "$ref": "#/$defs/topics" }
+      }
+    },
+    "characters": {
+      "description": "Character-level topics, keyed by the character id (a decimal string), not by name.",
+      "type": "object",
+      "propertyNames": { "pattern": "^[0-9]+$" },
+      "additionalProperties": { "$ref": "#/$defs/character" }
+    }
+  },
+  "$defs": {
+    "meta": {
+      "description": "Versions that make a bug report reproducible. Extra fields may be added without a schema bump.",
+      "type": "object",
+      "required": ["schema", "addon", "addonVersion", "apiVersion"],
+      "properties": {
+        "schema": { "const": 1 },
+        "addon": { "type": "string", "minLength": 1 },
+        "addonVersion": { "type": "string", "minLength": 1 },
+        "apiVersion": { "type": "integer", "minimum": 1 },
+        "gameVersion": { "type": "string" },
+        "server": { "type": "string" }
+      }
+    },
+    "character": {
+      "type": "object",
+      "required": ["name", "topics"],
+      "additionalProperties": false,
+      "properties": {
+        "name": { "$ref": "#/$defs/text" },
+        "topics": { "$ref": "#/$defs/topics" }
+      }
+    },
+    "topics": {
+      "description": "Entries keyed by topic id. The id pattern is provisional until the topic tree (tree.json) fixes the ids.",
+      "type": "object",
+      "propertyNames": { "pattern": "^[a-z][A-Za-z0-9_.]*$" },
+      "additionalProperties": { "$ref": "#/$defs/entry" }
+    },
+    "entry": {
+      "description": "What LibExportStore.NewEntry builds.",
+      "type": "object",
+      "required": ["kind", "data", "report"],
+      "additionalProperties": false,
+      "properties": {
+        "kind": { "const": "data" },
+        "timestamp": { "type": "integer", "minimum": 0 },
+        "data": {
+          "description": "The extractor's result, already sanitized. A table.",
+          "type": ["object", "array"],
+          "$ref": "#/$defs/value"
+        },
+        "report": { "$ref": "#/$defs/report" }
+      }
+    },
+    "report": {
+      "description": "What Sanitize counted and dropped while building the entry.",
+      "type": "object",
+      "required": ["tables", "strings", "longStrings", "numbers", "booleans", "nodes", "stringBytes", "dropped", "droppedList", "truncated"],
+      "properties": {
+        "tables": { "$ref": "#/$defs/count" },
+        "strings": { "$ref": "#/$defs/count" },
+        "longStrings": { "$ref": "#/$defs/count" },
+        "numbers": { "$ref": "#/$defs/count" },
+        "booleans": { "$ref": "#/$defs/count" },
+        "nodes": { "$ref": "#/$defs/count" },
+        "stringBytes": { "$ref": "#/$defs/count" },
+        "dropped": { "$ref": "#/$defs/count" },
+        "droppedList": { "$ref": "#/$defs/stringList" },
+        "truncated": { "type": "boolean" }
+      }
+    },
+    "count": { "type": "integer", "minimum": 0 },
+    "text": {
+      "description": "The game silently drops saved strings of 2000 characters or more, so none can reach a file.",
+      "type": "string",
+      "maxLength": 1999
+    },
+    "stringList": {
+      "description": "A Lua table has no empty-array/empty-object distinction, so an empty list may arrive as an empty object.",
+      "anyOf": [
+        { "type": "array", "items": { "$ref": "#/$defs/text" } },
+        { "type": "object", "maxProperties": 0 }
+      ]
+    },
+    "parts": {
+      "description": "A long string split by Sanitize. Join the parts with no separator.",
+      "type": "object",
+      "required": ["$parts"],
+      "additionalProperties": false,
+      "properties": {
+        "$parts": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/text" } }
+      }
+    },
+    "value": {
+      "description": "Any sanitized value. The key $parts is reserved for long strings, so a plain table never uses it.",
+      "anyOf": [
+        { "$ref": "#/$defs/text" },
+        { "type": "number" },
+        { "type": "boolean" },
+        { "$ref": "#/$defs/parts" },
+        {
+          "type": "array",
+          "items": { "$ref": "#/$defs/value" }
+        },
+        {
+          "type": "object",
+          "propertyNames": { "maxLength": 1999, "not": { "const": "$parts" } },
+          "additionalProperties": { "$ref": "#/$defs/value" }
+        }
+      ]
+    }
+  }
+}

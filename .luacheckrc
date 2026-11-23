@@ -3,7 +3,8 @@ std = "lua51"
 max_line_length = 120
 
 -- Local tooling directories are not part of the project.
-exclude_files = { ".claude/" }
+-- Fixtures are data files, not code.
+exclude_files = { ".claude/", "schema/fixtures/" }
 
 -- The export library publishes one global, as ESO libraries do.
 files["src/LibExportStore/"] = {

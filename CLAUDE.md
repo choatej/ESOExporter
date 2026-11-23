@@ -2,7 +2,8 @@
 
 Guidance for Claude Code sessions in this repository. Read this first, then
 [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) (the design) and
-[docs/PROJECT_PLAN.md](docs/PROJECT_PLAN.md) (milestones, PR roadmap, open decisions).
+[docs/PROJECT_PLAN.md](docs/PROJECT_PLAN.md) (milestones, PR roadmap, open decisions);
+[docs/CI_AND_RELEASES.md](docs/CI_AND_RELEASES.md) is the draft CI and release plan.
 
 ## What this is
 
@@ -15,18 +16,24 @@ CharacterMarkdown (README credits it as "Inspired By").
 ## Where we are
 
 Merged: scaffold, docs, Lua tooling, `LibExportStore` (the export library).
-Next, in order (see the PR roadmap in the plan): schema v1 and a first fixture,
-topic tree v1, add-on skeleton with topic registry and runner, character identity
-extractor and `save` command. Until the add-on exists there is no real output, so
-the first fixture is hand-built to the schema rather than scrubbed from real data.
+In review: schema v1 (`schema/v1/export.schema.json`), a hand-built fixture
+(`schema/fixtures/hand-built/`), a Python SavedVariables reader and schema tests
+(`tools/python`, a uv project with black, ruff, pyrefly and pytest; `task python:check`).
+Decided with the maintainer in step 6: keep the name `LibExportStore`; export data
+lives in a separate small data add-on (provisionally `ESOExporterData`) with its own
+SavedVariables file; JSON Schema draft 2020-12 validated with Python `jsonschema`;
+storage layout as in ARCHITECTURE.md 4.1.
+Next, in order (see the PR roadmap in the plan): topic tree v1, add-on skeleton with
+topic registry and runner, character identity extractor and `save` command. Until the
+add-on exists there is no real output, so the fixture is hand-built to the schema.
 
 The next step's questions and scope are in "Kickoff notes" in the plan. Ask those
 questions first.
 
 **Decisions that belong to the maintainer. Ask, do not decide silently:**
-the export library's final name (`LibExportStore` is provisional), whether export
-data lives in a separate small add-on to get its own SavedVariables file, the
-default post-processor's technology, the schema language details, and slash
+the export library's final name (`LibExportStore` is provisional, kept for now), the
+data add-on's name (`ESOExporterData` is provisional), the
+default post-processor's technology and slash
 command names.
 
 ## Session handoff
@@ -66,12 +73,15 @@ command names.
 
 ## Commands
 
-Needs Task, LuaJIT, StyLua and Luacheck (all installed on the maintainer's machine).
+Needs Task, LuaJIT, StyLua and Luacheck (installed on the maintainer's machine) and
+[uv](https://docs.astral.sh/uv/) for the Python project (`tools/python`; may need installing).
 
 ```sh
 task check     # format check, luacheck, offline tests
 task format    # apply StyLua
-task test      # tests only; `task test -- export` filters by spec name
+task test      # Lua tests only; `task test -- export` filters by spec name
+task python:check  # Python (tools/python, a uv project): black, ruff, pyrefly, pytest
+task test:python   # Python tests only, including schema validation
 lua5.1 tests/lua/run.lua   # also run under stock Lua 5.1, closer to the game
 ```
 
