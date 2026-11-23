@@ -1,5 +1,6 @@
 # ESOExporter
 
+[![CI](https://github.com/choatej/ESOExporter/actions/workflows/ci.yml/badge.svg)](https://github.com/choatej/ESOExporter/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/github/license/choatej/ESOExporter)](LICENSE)
 ![Status: pre-alpha](https://img.shields.io/badge/status-pre--alpha-orange)
 ![Lua 5.1](https://img.shields.io/badge/Lua-5.1-2C2D72?logo=lua&logoColor=white)

@@ -1,0 +1,5 @@
+# Names that may appear in fixtures: invented ones only. CI (tools/python/scripts/check_hygiene.py)
+# fails on any other @account name or character name in schema/fixtures/, so a real name
+# pasted into a fixture is caught. One name per line; account names include the @.
+Test Character One
+Test Character Two

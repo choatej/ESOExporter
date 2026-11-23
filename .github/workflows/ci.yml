@@ -1,0 +1,119 @@
+name: CI
+
+on:
+  pull_request:
+    types: [opened, edited, synchronize, reopened]
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+# Least privilege: jobs that need more ask for it themselves.
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+# Third-party actions are pinned to full commit SHAs (the comment names the release);
+# Dependabot keeps them current. The job names below are the required status checks.
+jobs:
+  pr-title:
+    name: pr-title
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: read
+    steps:
+      # The squash commit on main is the PR title, so it must be a Conventional Commit.
+      - uses: amannn/action-semantic-pull-request@c5e23b7e584519ee15caa684cf60d056aa9f035f # v6.1.3
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          types: |
+            feat
+            fix
+            perf
+            revert
+            docs
+            chore
+            test
+            refactor
+            build
+            ci
+            style
+          scopes: |
+            addon
+            lib
+            schema
+            python
+            web
+            tools
+            ci
+            docs
+            release
+            plan
+            deps
+          requireScope: false
+
+  lua:
+    name: lua
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: JohnnyMorganz/stylua-action@76fd70c03e6340ceaf673366712db9b20560b402 # v5.0.0
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          version: v0.20.0
+          args: --check .
+      - name: Install LuaJIT, Lua 5.1 and Luacheck
+        run: sudo apt-get update && sudo apt-get install -y luajit lua5.1 lua-check
+      - name: Luacheck
+        run: luacheck .
+      # Both interpreters: they differ, and the game runs stock Lua 5.1.
+      - name: Offline specs (LuaJIT)
+        run: luajit tests/lua/run.lua
+      - name: Offline specs (Lua 5.1)
+        run: lua5.1 tests/lua/run.lua
+
+  python:
+    name: python (${{ matrix.os }}, ${{ matrix.python }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { os: ubuntu-latest, python: "3.11" }
+          - { os: ubuntu-latest, python: "3.13" }
+          - { os: windows-latest, python: "3.12" }
+          - { os: macos-latest, python: "3.12" }
+    defaults:
+      run:
+        working-directory: tools/python
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: astral-sh/setup-uv@1db35dd8eee11c5894872e0b383ae6c406cf738d # v10.4.0
+        with:
+          python-version: ${{ matrix.python }}
+          enable-cache: true
+          cache-dependency-glob: tools/python/uv.lock
+      - run: uv sync --locked
+      - run: uv run black --check .
+      - run: uv run ruff check
+      - run: uv run pyrefly check
+      - run: uv run pytest --cov=esoexporter --cov-report=term-missing
+
+  repo-hygiene:
+    name: repo-hygiene
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      # Standard library only: no personal data in tracked files, only allow-listed names
+      # in fixtures, and well-formed add-on manifests.
+      - run: python3 tools/python/scripts/check_hygiene.py

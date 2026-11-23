@@ -1,6 +1,7 @@
 # CI and release plan
 
-Status: **draft, for the maintainer's review.** Nothing here is implemented yet. It is
+Status: **draft, for the maintainer's review.** The CI workflow is implemented (
+https://github.com/choatej/ESOExporter/pull/10); the `package` job and everything under "Release process" onwards are not. It is
 delivered as the pull requests in the table at the end, and the decisions it needs are in
 "Open decisions". Anything marked *(verify)* is an assumption to check before relying on it.
 
@@ -19,24 +20,27 @@ delivered as the pull requests in the table at the end, and the decisions it nee
 
 A single workflow, `ci.yml`, on `pull_request` and on pushes to `main`. Jobs are
 independent so a failure names its cause. Their names become the required status checks
-on `main` (added to branch protection after the first green run).
+on `main`. The maintainer adds them to branch protection after the first green run; the
+workflow does not change repository settings.
 
 | Job | Runs | Notes |
 |---|---|---|
-| `pr-title` | Conventional Commits check on the PR title | Allowed types: `feat fix perf revert docs chore test refactor build ci style`. Scopes: `addon lib schema python web tools ci docs release` |
+| `pr-title` | Conventional Commits check on the PR title | Allowed types: `feat fix perf revert docs chore test refactor build ci style`. Scopes: `addon lib schema python web tools ci docs release plan deps` |
 | `lua` | StyLua check, Luacheck, offline specs under **LuaJIT and stock Lua 5.1** | Both, because they differ (see `CLAUDE.md`). Same commands as `task check` |
 | `python` | `uv sync --locked`, Black check, Ruff, Pyrefly, pytest with coverage | Matrix: Python 3.11 and 3.13 (lowest and newest supported) on Linux; 3.12 on Windows and macOS because the tool is a desktop utility |
-| `package` | Build the add-on zip and the Python wheel and sdist, and check them | Catches packaging breakage before a release. Uploads them as workflow artifacts (7 days) |
-| `repo-hygiene` | Manifest checks, personal-data guard | See below |
+| `package` (not yet) | Build the add-on zip and the Python wheel and sdist, and check them | Catches packaging breakage before a release. Uploads them as workflow artifacts (7 days). Added with the packaging pull request |
+| `repo-hygiene` | `tools/python/scripts/check_hygiene.py`: manifest checks, personal-data guard | Standard library only; also `task hygiene`. See below |
 
 **Manifest checks** (a script, unit tested): each add-on folder name equals its
-manifest file name; every file listed in a manifest exists; `## APIVersion` is present
-and not older than a floor kept in one place; `## AddOnVersion` matches the version
-derived from `## Version` (below); `## DependsOn` names are known.
+manifest file name; every file listed in a manifest exists; `## Title`, `## APIVersion`
+and `## AddOnVersion` are present and numeric. Still to add: an `## APIVersion` floor
+kept in one place, `## AddOnVersion` matching the version derived from `## Version`
+(with the release-please pull request), and known `## DependsOn` names.
 
 **Personal-data guard**: fails if a tracked file matches paths `.gitignore` already
-blocks, or if a fixture contains an `@account` name or a character name not on an
-allow list of invented names. This is a backstop for the scrubbing rule, not a
+blocks, or if a fixture contains an `@account` name or a character name not on the
+allow list of invented names, `schema/fixtures/allowed-names.txt`. Add a name there
+when a new fixture needs one. This is a backstop for the scrubbing rule, not a
 replacement for it.
 
 What CI cannot do: run the game. In-game behaviour stays a manual check, recorded in
@@ -184,7 +188,7 @@ is where their numbers and links go once they are opened.
 
 | Branch | Title | Milestone | State |
 |---|---|---|---|
-| `ci/workflow` | CI workflow, PR title check, Dependabot, branch-protection checks, README badge | housekeeping | planned |
+| `ci/workflow` | CI workflow, PR title check, Dependabot, README badge ([#10](https://github.com/choatej/ESOExporter/pull/10)); the maintainer adds the required checks | housekeeping | open |
 | `feat/packaging` | Add-on packaging and manifest check scripts, with tests | M8 | planned |
 | `ci/release-please` | release-please config, version markers, `AddOnVersion` derivation, changelog switch | M8 | planned |
 | `ci/release-artifacts` | Release job: build, checksums, attestations, upload; PyPI trusted publishing | M8 | planned |
