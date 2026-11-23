@@ -2,7 +2,8 @@
 
 Guidance for Claude Code sessions in this repository. Read this first, then
 [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) (the design) and
-[docs/PROJECT_PLAN.md](docs/PROJECT_PLAN.md) (milestones, PR roadmap, open decisions).
+[docs/PROJECT_PLAN.md](docs/PROJECT_PLAN.md) (milestones, PR roadmap, open decisions);
+[docs/CI_AND_RELEASES.md](docs/CI_AND_RELEASES.md) is the draft CI and release plan.
 
 ## What this is
 

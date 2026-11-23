@@ -99,7 +99,7 @@ and a post-processor mapping for each entry.
 
 ### M8: First release
 
-- Packaging, versioning and changelog.
+- Packaging, versioning and changelog (see [CI_AND_RELEASES.md](CI_AND_RELEASES.md)).
 - ESOUI listing and a CI release workflow.
 - User documentation: install, configure, export, post-process, clear.
 - ESOUI topic and badges added to the repository once the listing exists.
@@ -128,6 +128,14 @@ and a post-processor mapping for each entry.
 | 7 | | Topic tree v1 | M1 | planned |
 | 8 | | Add-on skeleton, topic registry and runner | M2 | planned |
 | 9 | | Character identity extractor and `save` command | M2 | planned |
+| 10 | `ci/workflow` | CI workflow and checks | M0 | planned |
+| 11 | `feat/packaging` | Add-on packaging and manifest checks | M8 | planned |
+| 12 | `ci/release-please` | Versioning and release PRs | M8 | planned |
+| 13 | `ci/release-artifacts` | Release artifacts and PyPI publishing | M8 | planned |
+| 14 | `feat/web-packaging` | Single-file web tool build | M6 | planned |
+
+Steps 10 to 14 are specified in [CI_AND_RELEASES.md](CI_AND_RELEASES.md). Step 10 is
+independent of the product work and worth doing early; the maintainer picks the order.
 
 Step numbers are positions in this roadmap, not GitHub pull request numbers (small
 fix-up PRs do not get a step). Later steps are added here as earlier ones merge.
