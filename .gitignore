@@ -29,7 +29,9 @@ node_modules/
 
 # Logs and scratch
 *.log
-/local/
+# Private notes and scratch, never committed. Ignored files are per checkout, so a
+# git worktree starts without them; see "Session handoff" in CLAUDE.md.
+/.local/
 
 # Personal data: real SavedVariables files and exports must never be committed.
 # Put scrubbed fixtures under schema/fixtures/ instead.

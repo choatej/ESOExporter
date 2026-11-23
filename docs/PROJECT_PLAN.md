@@ -37,7 +37,8 @@ met and its pull requests are merged.
   tests (including a property test that no stored string reaches 2000 characters).
 - Schema v1: storage envelope, entry shape, `meta`, and the `$parts` convention.
 - Topic tree v1 (`tree.json`) with the starting topic catalog.
-- A first scrubbed fixture.
+- A first fixture. It is hand-built to the schema, because no add-on output exists
+  yet; it is replaced by scrubbed real output once M2 produces some.
 
 *Exit:* the library passes its tests under LuaJIT, and the schema validates the
 fixture.
@@ -118,16 +119,40 @@ and a post-processor mapping for each entry.
 
 | # | Branch | Title | Milestone | State |
 |---|---|---|---|---|
-| 1 | `chore/scaffold` | Project scaffold and architecture notes | M0 | open |
-| 2 | `docs/architecture-and-plan` | Architecture and project plan | M0 | open, stacked on 1 |
-| 3 | `chore/dev-tooling` | Lua tooling and offline test runner | M0 | open, stacked on 2 |
-| 4 | `feat/export-lib` | `LibExportStore` | M1 | open, stacked on 3 |
-| 5 | | Schema v1 and first fixture | M1 | planned |
-| 6 | | Topic tree v1 | M1 | planned |
-| 7 | | Add-on skeleton, topic registry and runner | M2 | planned |
-| 8 | | Character identity extractor and `save` command | M2 | planned |
+| 1 | `chore/scaffold` | Project scaffold and architecture notes | M0 | merged |
+| 2 | `docs/architecture-and-plan` | Architecture and project plan | M0 | merged |
+| 3 | `chore/dev-tooling` | Lua tooling and offline test runner | M0 | merged |
+| 4 | `feat/export-lib` | `LibExportStore` | M1 | merged |
+| 5 | `docs/agent-context` | `CLAUDE.md` for agent sessions; update this table | M0 | open |
+| 6 | | Schema v1 and first fixture | M1 | planned |
+| 7 | | Topic tree v1 | M1 | planned |
+| 8 | | Add-on skeleton, topic registry and runner | M2 | planned |
+| 9 | | Character identity extractor and `save` command | M2 | planned |
 
 Later pull requests are added here as earlier ones merge.
+
+### Kickoff notes for the next step (PR 6: schema v1 and a first fixture)
+
+Replace this section when the PR merges. Before writing anything, ask the
+maintainer these questions in one batch, each with a recommendation:
+
+1. **Library name.** `LibExportStore` is provisional.
+2. **One add-on or two.** SavedVariables are written to one file per add-on holding
+   every global it lists *(verify)*. A small separate data add-on gives exports their
+   own file, so a user can clear them by deleting it without losing settings.
+   Recommendation: separate.
+3. **Schema validation.** The Lua toolchain has no JSON Schema validator, so choose
+   a Python test dependency or a small hand-written checker.
+4. **Storage layout.** Confirm or change the draft in ARCHITECTURE.md section 4.1
+   (account scope, characters keyed by character id, entry shape).
+
+Then build: a `schema/` directory with the envelope and entry schemas and the
+`$parts` convention from `LibExportStore`; a fixture hand-built to the schema (no
+add-on output exists yet); and a test that validates it. Update ARCHITECTURE.md,
+this table, `CLAUDE.md` "Where we are", and the changelog in the same PR.
+
+The step after is PR 7, the topic tree, starting from `data/config/tree.json` on
+the maintainer's fork branch `feat/config-tree` (see `CLAUDE.md`).
 
 ## Risks and mitigations
 
@@ -146,7 +171,9 @@ Later pull requests are added here as earlier ones merge.
 1. Name of the export library (currently `LibExportStore`).
 2. Whether export data lives in a separate small add-on to get its own file.
 3. Technology and distribution of the default post-processor.
-4. Schema language details (JSON Schema draft and where validation runs).
+4. Schema language details (JSON Schema draft) and how schemas are validated: the
+   Lua toolchain has no JSON Schema validator, so validation needs a Python test
+   dependency or a small hand-written checker.
 5. Slash command names.
 
 ## Assumptions to verify in game
