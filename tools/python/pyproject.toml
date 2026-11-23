@@ -1,0 +1,45 @@
+[project]
+name = "esoexporter"
+version = "0.1.0"
+description = "Post-processing tools for ESOExporter SavedVariables exports"
+readme = "README.md"
+license = "MIT"
+requires-python = ">=3.11"
+dependencies = [
+    "jsonschema>=4.18",
+]
+
+[dependency-groups]
+dev = [
+    "black>=24.10",
+    "pyrefly>=0.40",
+    "pytest>=8.3",
+    "pytest-cov>=6.0",
+    "ruff>=0.8",
+    "types-jsonschema>=4.26.0.20261006",
+]
+
+[build-system]
+requires = ["uv_build>=0.9,<0.14"]
+build-backend = "uv_build"
+
+[tool.black]
+line-length = 100
+target-version = ["py311"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+src = ["src", "tests"]
+
+[tool.ruff.lint]
+# E/F pyflakes and pycodestyle, I imports, B bugbear, UP pyupgrade, SIM simplify, PT pytest style
+select = ["E", "F", "W", "I", "B", "UP", "SIM", "PT", "RUF"]
+
+[tool.pyrefly]
+project-includes = ["src", "tests"]
+python-version = "3.11"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-ra --strict-markers --strict-config"

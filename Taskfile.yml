@@ -1,6 +1,6 @@
 version: "3"
 
-# Developer tasks. Requires: task, luajit, stylua, luacheck (see CONTRIBUTING.md).
+# Developer tasks. Requires: task, luajit, stylua, luacheck, uv (see CONTRIBUTING.md).
 
 tasks:
   default:
@@ -29,10 +29,27 @@ tasks:
     cmds:
       - luajit tests/lua/run.lua {{.CLI_ARGS}}
 
-  test:python:
-    desc: Run the Python tests, including schema validation (needs jsonschema, see tools/python/requirements.txt)
+  python:format:
+    desc: Format the Python project with Black and fix lint with Ruff
+    dir: tools/python
     cmds:
-      - PYTHONPATH=tools/python python3 -m unittest discover -s tools/python/tests -t tools/python {{.CLI_ARGS}}
+      - uv run black .
+      - uv run ruff check --fix
+
+  python:check:
+    desc: Python format check, lint, type check and tests (needs uv)
+    dir: tools/python
+    cmds:
+      - uv run black --check .
+      - uv run ruff check
+      - uv run pyrefly check
+      - uv run pytest {{.CLI_ARGS}}
+
+  test:python:
+    desc: Run the Python tests, including schema validation (needs uv)
+    dir: tools/python
+    cmds:
+      - uv run pytest {{.CLI_ARGS}}
 
   check:
     desc: Everything CI will run later - formatting, lint and tests
@@ -40,4 +57,4 @@ tasks:
       - task: format:check
       - task: lint
       - task: test
-      - task: test:python
+      - task: python:check

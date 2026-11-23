@@ -17,7 +17,7 @@ CharacterMarkdown (README credits it as "Inspired By").
 Merged: scaffold, docs, Lua tooling, `LibExportStore` (the export library).
 In review: schema v1 (`schema/v1/export.schema.json`), a hand-built fixture
 (`schema/fixtures/hand-built/`), a Python SavedVariables reader and schema tests
-(`task test:python`, needs `pip install -r tools/python/requirements.txt`).
+(`tools/python`, a uv project with black, ruff, pyrefly and pytest; `task python:check`).
 Decided with the maintainer in step 6: keep the name `LibExportStore`; export data
 lives in a separate small data add-on (provisionally `ESOExporterData`) with its own
 SavedVariables file; JSON Schema draft 2020-12 validated with Python `jsonschema`;
@@ -72,13 +72,15 @@ command names.
 
 ## Commands
 
-Needs Task, LuaJIT, StyLua and Luacheck (all installed on the maintainer's machine).
+Needs Task, LuaJIT, StyLua and Luacheck (installed on the maintainer's machine) and
+[uv](https://docs.astral.sh/uv/) for the Python project (`tools/python`; may need installing).
 
 ```sh
 task check     # format check, luacheck, offline tests
 task format    # apply StyLua
 task test      # Lua tests only; `task test -- export` filters by spec name
-task test:python   # schema validation and the SavedVariables reader (needs jsonschema)
+task python:check  # Python (tools/python, a uv project): black, ruff, pyrefly, pytest
+task test:python   # Python tests only, including schema validation
 lua5.1 tests/lua/run.lua   # also run under stock Lua 5.1, closer to the game
 ```
 

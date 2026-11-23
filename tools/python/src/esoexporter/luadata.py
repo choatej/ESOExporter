@@ -29,7 +29,19 @@ class LuaDataError(ValueError):
 _NUMBER = re.compile(r"-?(?:0[xX][0-9a-fA-F]+|(?:\d+\.?\d*|\.\d+)(?:[eE][+-]?\d+)?)")
 _NAME = re.compile(r"[A-Za-z_][A-Za-z0-9_]*")
 _LONG_OPEN = re.compile(r"\[(=*)\[")
-_ESCAPES = {"n": "\n", "t": "\t", "r": "\r", "a": "\a", "b": "\b", "f": "\f", "v": "\v", "\\": "\\", '"': '"', "'": "'", "\n": "\n"}
+_ESCAPES = {
+    "n": "\n",
+    "t": "\t",
+    "r": "\r",
+    "a": "\a",
+    "b": "\b",
+    "f": "\f",
+    "v": "\v",
+    "\\": "\\",
+    '"': '"',
+    "'": "'",
+    "\n": "\n",
+}
 
 
 class _Parser:
@@ -133,7 +145,9 @@ class _Parser:
                 out.append(_ESCAPES[escaped])
                 self.pos += 1
             elif escaped.isdigit():
-                digits = re.match(r"\d{1,3}", text[self.pos :]).group()
+                found = re.match(r"\d{1,3}", text[self.pos :])
+                assert found is not None  # escaped.isdigit() guarantees a digit
+                digits = found.group()
                 if int(digits) > 255:
                     raise self.fail("escape \\ddd above 255")
                 out.append(chr(int(digits)))
@@ -178,7 +192,7 @@ class _Parser:
                 value = self.parse_value(depth + 1)
             else:
                 match = _NAME.match(self.text, self.pos)
-                after = match and self.text[match.end() :].lstrip(" \t\r\n")
+                after = self.text[match.end() :].lstrip(" \t\r\n") if match else ""
                 if match and after.startswith("=") and not after.startswith("=="):
                     key = match.group()
                     self.pos = match.end()
@@ -201,9 +215,10 @@ class _Parser:
         if not items:
             return {}
         keys = [key for key, _ in items]
-        if all(isinstance(key, int) and not isinstance(key, bool) for key in keys):
-            if sorted(keys) == list(range(1, len(keys) + 1)):
-                return [value for _, value in sorted(items, key=lambda item: item[0])]
+        if all(isinstance(key, int) and not isinstance(key, bool) for key in keys) and sorted(
+            keys
+        ) == list(range(1, len(keys) + 1)):
+            return [value for _, value in sorted(items, key=lambda item: item[0])]
         out: dict[str, object] = {}
         for key, value in items:
             if isinstance(key, float) and key.is_integer():

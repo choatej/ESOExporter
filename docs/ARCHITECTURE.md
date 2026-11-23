@@ -247,7 +247,7 @@ category is summarized in the project plan.
 
 - **Offline Lua tests** under LuaJIT (Lua 5.1) for all pure code: the export
   library, the topic tree, extractors against stubbed game functions.
-- **Schema validation** in Python (`jsonschema`), run by `task test:python`: the
+- **Schema validation** in Python (`jsonschema`, under pytest), run by `task test:python`: the
   fixture must validate and deliberately broken copies must not. The Lua side checks
   the same fixture loads the way the game loads it and that its reports match the
   library's. Both post-processors validate against the same schema file.
@@ -269,7 +269,7 @@ category is summarized in the project plan.
 src/ESOExporter/       the add-on (folder name must match its manifest name)
 src/LibExportStore/    the export library (own manifest, IsLibrary)
 schema/                v1/ envelope and topic schemas, tree.json, fixtures/
-tools/python/          Python post-processor (so far: a SavedVariables reader and schema tests)
+tools/python/          Python post-processor, a uv project (so far: a SavedVariables reader and schema tests)
 tools/web/             default post-processor
 tests/lua/             offline Lua tests
 docs/                  this file and the project plan

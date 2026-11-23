@@ -29,8 +29,7 @@ support the current and previous version. Optional additions inside `meta` do no
 ## Checking
 
 ```sh
-pip install -r tools/python/requirements.txt
-task test:python
+task test:python        # needs uv; or `uv run pytest` in tools/python
 ```
 
 The Python tests parse the fixture with a safe reader (`tools/python/esoexporter/luadata.py`,
