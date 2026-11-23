@@ -272,6 +272,7 @@ schema/                v1/ envelope and topic schemas, tree.json, fixtures/
 tools/python/          Python post-processor, a uv project (so far: a SavedVariables reader and schema tests)
 tools/web/             default post-processor
 tests/lua/             offline Lua tests
+.github/               CI workflow (ci.yml), Dependabot, issue and PR templates
 docs/                  this file and the project plan
 ```
 

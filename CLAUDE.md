@@ -33,21 +33,21 @@ maintainer rather than installing anything system-wide.
 
 ## Where we are
 
-Merged (#1 to #8): scaffold, docs, Lua tooling, `LibExportStore` (the export library),
+Merged (#1 to #10): scaffold, docs, Lua tooling, `LibExportStore` (the export library),
 schema v1 (`schema/v1/export.schema.json`), a hand-built fixture
 (`schema/fixtures/hand-built/`), a Python SavedVariables reader and schema tests
 (`tools/python`, a uv project with black, ruff, pyrefly and pytest; `task python:check`),
-and the CI and release plan. M0 is done; M1 has one pull request left (the topic tree).
-CI is in review in #10 (`.github/workflows/ci.yml`; jobs `pr-title`, `lua`, `python`,
-`repo-hygiene`; Dependabot). Decided with the maintainer in #7: keep the name `LibExportStore`; export data
+the CI and release plan, and CI (`.github/workflows/ci.yml`; jobs `pr-title`, `lua`,
+`python`, `repo-hygiene`; Dependabot), all required on `main`. M0 is done; M1 has one pull
+request left (the topic tree). Decided with the maintainer in #7: keep the name `LibExportStore`; export data
 lives in a separate small data add-on (provisionally `ESOExporterData`) with its own
 SavedVariables file; JSON Schema draft 2020-12 validated with Python `jsonschema`;
 storage layout as in ARCHITECTURE.md 4.1.
 The CI and release plan is `docs/CI_AND_RELEASES.md` (semver from conventional commits
 via release-please, release artifacts, post-processor packaging); only the CI workflow is
-implemented, and the rest has open decisions for the maintainer. The maintainer adds the
-CI jobs as required checks on `main` (a settings change; do not make it unasked).
-Next (see the pull request roadmap in the plan): the topic tree. After that: add-on skeleton
+implemented, and the rest has open decisions for the maintainer.
+Next (see the pull request roadmap in the plan): the topic tree. After that (the plan's
+kickoff notes list the order and the questions already known): add-on skeleton
 with topic registry and runner, then the character identity extractor and `save`
 command. Until the add-on exists there is no real output, so the fixture is hand-built
 to the schema.
@@ -81,8 +81,13 @@ command names.
 ## Git workflow (strict)
 
 - Never commit or push to `main`. Branch, open a PR, squash-merge. `main` is
-  protected: PR required, 0 approvals, admins included, linear history. Merge
-  commits and rebase merges are disabled. **Do not rebase.**
+  protected by the repository ruleset "main checks" (there is no classic branch
+  protection): PR required, 0 approvals, review threads resolved, squash merge only,
+  no force-push or deletion, no bypass actors (admins included), and the required status
+  checks `pr-title`, `lua`, `repo-hygiene` and the four `python (...)` jobs. Merge
+  commits and rebase merges are disabled. **Do not rebase.** Ruleset and branch settings
+  are the maintainer's: do not change them unasked. If a CI job is renamed, the ruleset's
+  required check names must change with it.
 - Do not merge PRs unless the maintainer asks you to.
 - PR titles are Conventional Commits (`feat(addon): ...`); the title becomes the
   squash commit. Branch prefixes: `feat/ fix/ docs/ chore/ refactor/ test/`.
