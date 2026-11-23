@@ -111,6 +111,27 @@ Both read a SavedVariables file, validate it against the schema, rejoin
 The two must produce the same normalized model from the same fixture. Output
 formats (JSON, lean Markdown, build summaries) are added per tool.
 
+#### Generated shared models
+
+The shape of the data is defined once, in the schema, and the post-processors do not
+hand-write it. The **shared data models** (the typed definitions of the envelope, the
+topics and their fields) are **generated** from `schema/v1/` for each target language:
+Python types for `tools/python`, and types for the default post-processor in whatever
+language it ends up using. The generated files are committed, are marked as generated,
+and are never edited by hand. CI regenerates them and fails if the result differs from
+what is committed, so a schema change cannot reach one post-processor without the other.
+
+Only the shared data models are generated. Everything else is specific to a
+post-processor and is ordinary static code that each one owns: the Lua table parser, the
+`$parts` rejoin, name resolution, normalization, output formats and the command-line or
+browser interface. Those are behavior, not shape, and the golden fixtures plus the
+identical-output test are what keep them in agreement.
+
+The generator's input is the schema only. Where the schema cannot express something the
+models need (for example which raw integer enum values map to which names), the fix is
+an annotation in the schema, not a hand-edited model. The generators and the default
+post-processor's language are chosen together; see the open questions.
+
 ## 4. Data model
 
 ### 4.1 Storage layout (schema v1)
@@ -252,6 +273,8 @@ category is summarized in the project plan.
   the same fixture loads the way the game loads it and that its reports match the
   library's. Both post-processors validate against the same schema file.
 - **Golden fixtures** shared by both post-processors.
+- **Generated models are checked, not trusted:** a CI job regenerates them and fails on
+  any difference from the committed files (see 3.4).
 - **In-game checklist** for what cannot be stubbed: settings panel, login
   reminder, real extraction on a real character, SavedVariables round trip.
 
@@ -271,6 +294,7 @@ src/LibExportStore/    the export library (own manifest, IsLibrary)
 schema/                v1/ envelope and topic schemas, tree.json, fixtures/
 tools/python/          Python post-processor, a uv project (so far: a SavedVariables reader and schema tests)
 tools/web/             default post-processor
+tools/codegen/         generates the shared data models from the schema (planned, M5)
 tests/lua/             offline Lua tests
 .github/               CI workflow (ci.yml), Dependabot, issue and PR templates
 docs/                  this file and the project plan
@@ -286,9 +310,16 @@ docs/                  this file and the project plan
 5. Data is stored raw; names and links are resolved outside the game.
 6. Account-level and character-level scopes are first-class.
 7. PC, macOS and Steam Deck only.
+8. The shared data models are generated from the schema into each post-processor and
+   checked in CI. Nothing else is generated; the rest of each post-processor is static
+   code. (The generator tools are an open question.)
 
 ## 15. Open questions
 
 - The default post-processor's technology and how it is distributed.
+- The model generator: which tool per target (candidates are `datamodel-code-generator` for
+  Python and `json-schema-to-typescript` for TypeScript), where it lives (`tools/codegen/`
+  or in each project), and which schema annotations the models need. Depends on the
+  default post-processor's technology.
 - Whether LibAddonMenu can express the topic tree directly.
 - The final name of the export library.
