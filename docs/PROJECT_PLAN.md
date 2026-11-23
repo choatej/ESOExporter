@@ -72,16 +72,21 @@ arguments, on desktop and on Steam Deck.
 
 ### M5: Python post-processor
 
-Port the existing Python model and tools, adapt them to schema v1, and test
-them against the golden fixtures. Output: normalized JSON and a lean Markdown
-view.
+Port the existing Python tools, adapt them to schema v1, and test them against the
+golden fixtures. The shared data models are not ported by hand: this milestone adds the
+model generator (schema to typed models, with a CI check that the committed output is
+current) and the Python post-processor uses its Python output. Output: normalized JSON
+and a lean Markdown view.
 
-*Exit:* the fixture from M2 or M3 converts to the expected outputs.
+*Exit:* the fixture from M2 or M3 converts to the expected outputs, and CI fails if the
+generated models are out of date with the schema.
 
 ### M6: Default post-processor
 
 Browser-based, local, no installation. Same fixtures and the same normalized
-model as the Python tool.
+model as the Python tool. Its data models come from the same generator (the target
+language follows the technology decision), so only the parser, name resolution and
+interface are written by hand.
 
 *Exit:* both post-processors produce identical normalized output for every
 fixture.
@@ -164,7 +169,8 @@ A branch name is shown for planned work so it can be found; merged branches are 
 | planned | Settings screen driven by the topic tree (`feat/settings-panel`) | M4 | planned |
 | planned | Saved selection and no-argument `save` (`feat/settings-selection`) | M4 | planned |
 | planned | Login reminder and clear (`feat/login-reminder`) | M4 | planned |
-| planned | Port the Python model; normalized JSON output (`feat/python-model`) | M5 | planned |
+| planned | Model generator: shared data models from the schema, with a CI freshness check (`feat/model-codegen`) | M5 | planned |
+| planned | Python post-processor on the generated model; normalized JSON output (`feat/python-model`) | M5 | planned |
 | planned | Lean Markdown view and command-line entry point (`feat/python-cli`) | M5 | planned |
 | planned | Default post-processor: browser viewer (`feat/web-viewer`) | M6 | planned |
 | planned | Single-file build and headless browser test (`feat/web-packaging`) | M6 | planned |
@@ -214,6 +220,10 @@ the maintainer the questions below in one batch, each with a recommendation.
    by the existing Python tests, plus a Lua spec that loads the tree and derives
    effective states with the gate rules.
 
+Keep the planned model generator in mind (M5, architecture 3.4): whatever the tree and
+schema say about topic ids, scope and cost class will become generated types, so prefer
+facts the schema can state (enums, patterns) over conventions in prose.
+
 Then build: `schema/v1/tree.json` (and its schema), the gate-resolution code in Lua
 as pure functions with offline tests, and the update to the fixture's topic ids if
 the tree renames them (`fixtureLongText` and `fixtureDropped` are synthetic and stay).
@@ -254,7 +264,8 @@ Read CLAUDE.md, ask the kickoff questions, then do the next step.
 |---|---|
 | SavedVariables size or load time grows with exports | Report size, opt-in heavy topics, login reminder, clear command |
 | Game updates change API results | Raw storage, `meta` records versions, per-extractor error isolation |
-| Two post-processors drift apart | Shared schema, shared golden fixtures, identical-output test |
+| Two post-processors drift apart | Shared schema, shared golden fixtures, identical-output test, and shared data models generated from the schema with a CI freshness check |
+| Generated models do not capture schema semantics (enums, nil, `$parts`) | Annotate the schema instead of editing models; keep behavior in hand-written code |
 | LibAddonMenu cannot express the topic tree | Fall back to a small custom panel; decide in M4 |
 | Dependency libraries break or go stale | Optional dependencies with fallbacks; check update history before adopting |
 | Personal data leaks through fixtures or reports | Scrubbed fixtures only; `.gitignore` rules; redaction option |
@@ -266,10 +277,13 @@ Read CLAUDE.md, ask the kickoff questions, then do the next step.
    [#7](https://github.com/choatej/ESOExporter/pull/7)).
 2. ~~Whether export data lives in a separate small add-on to get its own file.~~
    Decided in [#7](https://github.com/choatej/ESOExporter/pull/7): separate.
-3. Technology and distribution of the default post-processor.
+3. Technology and distribution of the default post-processor. This also picks the
+   second model-generator target (item 6).
 4. ~~Schema language details and validation.~~ Decided in [#7](https://github.com/choatej/ESOExporter/pull/7): JSON Schema draft
    2020-12, validated with Python `jsonschema` in `task test:python`.
 5. Slash command names.
+6. Model generator: tool per target, location (`tools/codegen/` or per project), and
+   schema annotations needed. Decide before M5 starts, together with item 3.
 6. Name of the data add-on that owns `ESOExporterData` (provisional), settled when it
    is created in the add-on skeleton pull request.
 7. CI and release choices: generated changelog, one repository version, the token for
