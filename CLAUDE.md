@@ -31,16 +31,19 @@ command names.
 
 ## Session handoff
 
-- **Tracked, shared state** lives in this file's "Where we are" and in the PR
-  table of the plan. Update both in the PR that finishes a step.
-- **Private notes** (anything personal or machine-specific) go in `.local/`, which
-  is git-ignored. Ignored files are per checkout, so a session working in a git
-  worktree does not have its own copy and loses anything it writes there when the
-  worktree is removed. Use the **primary checkout's** directory by absolute path:
-  `~/src/ESOExporter/.local/`. If `HANDOFF.md` exists there, read it after this file.
-- A background (worktree-isolated) session can read that directory but the harness
-  refuses its writes there. Such a session puts its handoff in its final report and
-  the maintainer saves it to `.local/HANDOFF.md`.
+- **The handoff is tracked, not a separate file.** Where we are is "Where we are"
+  in this file; what to do next and what to ask the maintainer first is "Kickoff
+  notes" in `docs/PROJECT_PLAN.md`. Update both, and the plan's step table, in the
+  PR that finishes a step, and write the kickoff notes for the step after it.
+  There is no handoff file to look for.
+- **Private notes are optional.** Anything personal or machine-specific can go in
+  `.local/`, which is git-ignored. It may not exist; do not treat that as a problem.
+  Ignored files are per checkout, so a session in a git worktree does not have its
+  own copy and loses anything it writes there when the worktree is removed. Use the
+  **primary checkout's** directory by absolute path, `~/src/ESOExporter/.local/`,
+  and read whatever is there. A background (worktree-isolated) session can read that
+  directory but the harness refuses its writes there, so it puts anything the
+  maintainer should keep in its final report.
 
 ## Git workflow (strict)
 
