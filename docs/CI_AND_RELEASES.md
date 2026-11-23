@@ -20,8 +20,9 @@ delivered as the pull requests in the table at the end, and the decisions it nee
 
 A single workflow, `ci.yml`, on `pull_request` and on pushes to `main`. Jobs are
 independent so a failure names its cause. Their names become the required status checks
-on `main`. The maintainer adds them to branch protection after the first green run; the
-workflow does not change repository settings.
+on `main`, enforced by the repository ruleset "main checks" (the maintainer's setting; the
+workflow does not change repository settings). The `python` job names include the matrix
+versions, so changing the matrix means updating the ruleset's required checks too.
 
 | Job | Runs | Notes |
 |---|---|---|
@@ -188,7 +189,7 @@ is where their numbers and links go once they are opened.
 
 | Branch | Title | Milestone | State |
 |---|---|---|---|
-| `ci/workflow` | CI workflow, PR title check, Dependabot, README badge ([#10](https://github.com/choatej/ESOExporter/pull/10)); the maintainer adds the required checks | housekeeping | open |
+| `ci/workflow` | CI workflow, PR title check, Dependabot, README badge ([#10](https://github.com/choatej/ESOExporter/pull/10)); the checks are required by the ruleset | housekeeping | merged |
 | `feat/packaging` | Add-on packaging and manifest check scripts, with tests | M8 | planned |
 | `ci/release-please` | release-please config, version markers, `AddOnVersion` derivation, changelog switch | M8 | planned |
 | `ci/release-artifacts` | Release job: build, checksums, attestations, upload; PyPI trusted publishing | M8 | planned |

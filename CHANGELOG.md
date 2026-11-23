@@ -20,6 +20,8 @@ the project follows [Semantic Versioning](https://semver.org/) once it is releas
   hand-built fixture, and a Python project (`tools/python`, managed with uv; Black, Ruff,
   Pyrefly, pytest) with a safe SavedVariables reader and tests that validate the fixture
   and reject broken copies.
+- `main` is protected by one ruleset ("main checks") that requires the CI jobs; the classic
+  branch protection is removed.
 - CI: a GitHub Actions workflow (PR title check, Lua checks under LuaJIT and Lua 5.1, Python
   checks on Linux, Windows and macOS, repository hygiene), Dependabot for Actions and uv, and a
   hygiene script that blocks personal data, unknown fixture names and malformed manifests.
