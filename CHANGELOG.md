@@ -13,5 +13,6 @@ the project follows [Semantic Versioning](https://semver.org/) once it is releas
 - `LibExportStore` 0.1.0 (provisional name): sanitize and split structured data so
   SavedVariables can hold it, store entries at a path, and summarize what is stored.
 - `CLAUDE.md` with the workflow, conventions and pointers an agent session needs.
+  The handoff between sessions is the tracked kickoff notes in the project plan.
 - Developer tooling: StyLua and Luacheck configuration, a Taskfile, and an
   offline Lua test runner (LuaJIT).

@@ -117,21 +117,22 @@ and a post-processor mapping for each entry.
 
 ## Pull request roadmap
 
-| # | Branch | Title | Milestone | State |
+| Step | Branch | Title | Milestone | State |
 |---|---|---|---|---|
 | 1 | `chore/scaffold` | Project scaffold and architecture notes | M0 | merged |
 | 2 | `docs/architecture-and-plan` | Architecture and project plan | M0 | merged |
 | 3 | `chore/dev-tooling` | Lua tooling and offline test runner | M0 | merged |
 | 4 | `feat/export-lib` | `LibExportStore` | M1 | merged |
-| 5 | `docs/agent-context` | `CLAUDE.md` for agent sessions; update this table | M0 | open |
+| 5 | `docs/agent-context` | `CLAUDE.md` for agent sessions; update this table | M0 | merged |
 | 6 | | Schema v1 and first fixture | M1 | planned |
 | 7 | | Topic tree v1 | M1 | planned |
 | 8 | | Add-on skeleton, topic registry and runner | M2 | planned |
 | 9 | | Character identity extractor and `save` command | M2 | planned |
 
-Later pull requests are added here as earlier ones merge.
+Step numbers are positions in this roadmap, not GitHub pull request numbers (small
+fix-up PRs do not get a step). Later steps are added here as earlier ones merge.
 
-### Kickoff notes for the next step (PR 6: schema v1 and a first fixture)
+### Kickoff notes for the next step (step 6: schema v1 and a first fixture)
 
 Replace this section when the PR merges. Before writing anything, ask the
 maintainer these questions in one batch, each with a recommendation:
@@ -151,7 +152,7 @@ Then build: a `schema/` directory with the envelope and entry schemas and the
 add-on output exists yet); and a test that validates it. Update ARCHITECTURE.md,
 this table, `CLAUDE.md` "Where we are", and the changelog in the same PR.
 
-The step after is PR 7, the topic tree, starting from `data/config/tree.json` on
+The step after is step 7, the topic tree, starting from `data/config/tree.json` on
 the maintainer's fork branch `feat/config-tree` (see `CLAUDE.md`).
 
 ## Risks and mitigations
