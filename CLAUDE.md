@@ -23,12 +23,17 @@ Decided with the maintainer in step 6: keep the name `LibExportStore`; export da
 lives in a separate small data add-on (provisionally `ESOExporterData`) with its own
 SavedVariables file; JSON Schema draft 2020-12 validated with Python `jsonschema`;
 storage layout as in ARCHITECTURE.md 4.1.
-Next, in order (see the PR roadmap in the plan): topic tree v1, add-on skeleton with
-topic registry and runner, character identity extractor and `save` command. Until the
-add-on exists there is no real output, so the fixture is hand-built to the schema.
+A draft CI and release plan is in `docs/CI_AND_RELEASES.md` (semver from conventional
+commits via release-please, release artifacts, post-processor packaging); nothing in it
+is implemented yet, and it has open decisions for the maintainer.
+Next (see the PR roadmap in the plan): two independent steps are ready, step 10 (CI
+workflow, recommended first) and step 7 (topic tree v1). After those: add-on skeleton
+with topic registry and runner, then the character identity extractor and `save`
+command. Until the add-on exists there is no real output, so the fixture is hand-built
+to the schema.
 
-The next step's questions and scope are in "Kickoff notes" in the plan. Ask those
-questions first.
+The next step's questions and scope, and a ready-to-paste prompt for the next session,
+are in "Kickoff notes" in the plan. Ask those questions first.
 
 **Decisions that belong to the maintainer. Ask, do not decide silently:**
 the export library's final name (`LibExportStore` is provisional, kept for now), the
