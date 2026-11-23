@@ -123,7 +123,7 @@ and a post-processor mapping for each entry.
 
 | Milestone | Name | State | Pull requests |
 |---|---|---|---|
-| M0 | Foundation | in progress: CI workflow remains | [#1](https://github.com/choatej/ESOExporter/pull/1), [#2](https://github.com/choatej/ESOExporter/pull/2), [#3](https://github.com/choatej/ESOExporter/pull/3), [#5](https://github.com/choatej/ESOExporter/pull/5), [#6](https://github.com/choatej/ESOExporter/pull/6), [#8](https://github.com/choatej/ESOExporter/pull/8) |
+| M0 | Foundation | in progress: CI workflow remains | [#1](https://github.com/choatej/ESOExporter/pull/1), [#2](https://github.com/choatej/ESOExporter/pull/2), [#3](https://github.com/choatej/ESOExporter/pull/3), [#5](https://github.com/choatej/ESOExporter/pull/5), [#6](https://github.com/choatej/ESOExporter/pull/6), [#8](https://github.com/choatej/ESOExporter/pull/8), [#9](https://github.com/choatej/ESOExporter/pull/9) |
 | M1 | Export library and schema v1 | in progress: topic tree remains | [#4](https://github.com/choatej/ESOExporter/pull/4), [#7](https://github.com/choatej/ESOExporter/pull/7) |
 | M2 | Add-on skeleton | not started | |
 | M3 | First extractors | not started | |
@@ -150,6 +150,7 @@ A branch name is shown for planned work so it can be found; merged branches are 
 | [#6](https://github.com/choatej/ESOExporter/pull/6) | Make the tracked kickoff notes the handoff | M0 | merged |
 | [#7](https://github.com/choatej/ESOExporter/pull/7) | Schema v1, a hand-built fixture, the Python project (uv), and the CI and release plan | M1 | merged |
 | [#8](https://github.com/choatej/ESOExporter/pull/8) | Next-step kickoff notes, a session prompt, and `CLAUDE.md` as the single entry point | M0 | merged |
+| [#9](https://github.com/choatej/ESOExporter/pull/9) | Tie the roadmap to pull requests and cover every milestone | M0 | open |
 | planned | CI workflow and checks (`ci/workflow`) | M0 | planned |
 | planned | Topic tree v1 (`feat/topic-tree`) | M1 | planned |
 | planned | Add-on skeleton, data add-on, topic registry and runner (`feat/addon-skeleton`) | M2 | planned |
