@@ -23,29 +23,30 @@ then do the next step."* This file is the single entry point; do this:
    open, stack on it per CONTRIBUTING.md.
 2. Ask the questions in "Kickoff notes for the next step" in `docs/PROJECT_PLAN.md`, in
    one batch, each with a recommendation. Do not start before they are answered.
-3. Do the step: branch, PR, squash only, no rebase, noreply commit email. Do not merge
+3. Do the work: branch, PR, squash only, no rebase, noreply commit email. Do not merge
    unless asked, and do not change repository settings or secrets unasked.
-4. Finish by updating "Where we are" below, the plan's step table and the kickoff notes
-   for the step after, in the same PR.
+4. Finish by updating "Where we are" below, the plan's milestone and pull request tables and
+   the kickoff notes for the work after it, in the same PR.
 
 `uv` may not be installed (the Python project in `tools/python` uses it). Tell the
 maintainer rather than installing anything system-wide.
 
 ## Where we are
 
-Merged: scaffold, docs, Lua tooling, `LibExportStore` (the export library).
-In review: schema v1 (`schema/v1/export.schema.json`), a hand-built fixture
+Merged (#1 to #8): scaffold, docs, Lua tooling, `LibExportStore` (the export library),
+schema v1 (`schema/v1/export.schema.json`), a hand-built fixture
 (`schema/fixtures/hand-built/`), a Python SavedVariables reader and schema tests
-(`tools/python`, a uv project with black, ruff, pyrefly and pytest; `task python:check`).
-Decided with the maintainer in step 6: keep the name `LibExportStore`; export data
+(`tools/python`, a uv project with black, ruff, pyrefly and pytest; `task python:check`),
+and the CI and release plan. M0 and M1 each have one pull request left (CI workflow,
+topic tree). Decided with the maintainer in #7: keep the name `LibExportStore`; export data
 lives in a separate small data add-on (provisionally `ESOExporterData`) with its own
 SavedVariables file; JSON Schema draft 2020-12 validated with Python `jsonschema`;
 storage layout as in ARCHITECTURE.md 4.1.
 A draft CI and release plan is in `docs/CI_AND_RELEASES.md` (semver from conventional
 commits via release-please, release artifacts, post-processor packaging); nothing in it
 is implemented yet, and it has open decisions for the maintainer.
-Next (see the PR roadmap in the plan): two independent steps are ready, step 10 (CI
-workflow, recommended first) and step 7 (topic tree v1). After those: add-on skeleton
+Next (see the pull request roadmap in the plan): two independent pull requests are
+ready, the CI workflow (recommended first) and the topic tree. After those: add-on skeleton
 with topic registry and runner, then the character identity extractor and `save`
 command. Until the add-on exists there is no real output, so the fixture is hand-built
 to the schema.
@@ -63,8 +64,9 @@ command names.
 
 - **The handoff is tracked, not a separate file.** Where we are is "Where we are"
   in this file; what to do next and what to ask the maintainer first is "Kickoff
-  notes" in `docs/PROJECT_PLAN.md`. Update both, and the plan's step table, in the
-  PR that finishes a step, and write the kickoff notes for the step after it.
+  notes" in `docs/PROJECT_PLAN.md`. Update both, and the plan's milestone and pull
+  request tables (with the PR number and link), in the PR that finishes the work, and
+  write the kickoff notes for what comes after it.
   There is no handoff file to look for.
 - **Private notes are optional.** Anything personal or machine-specific can go in
   `.local/`, which is git-ignored. It may not exist; do not treat that as a problem.

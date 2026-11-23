@@ -20,6 +20,8 @@ the project follows [Semantic Versioning](https://semver.org/) once it is releas
   hand-built fixture, and a Python project (`tools/python`, managed with uv; Black, Ruff,
   Pyrefly, pytest) with a safe SavedVariables reader and tests that validate the fixture
   and reject broken copies.
+- The plan's roadmap now has a milestone status table and a pull request table with links,
+  covering every milestone.
 - Next-step kickoff notes for CI and the topic tree, and a prompt for the next session, in
   the project plan.
 - `docs/CI_AND_RELEASES.md`: a draft plan for CI, semver and conventional-commit releases,
