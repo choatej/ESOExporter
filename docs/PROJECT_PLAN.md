@@ -193,7 +193,7 @@ milestone work. CI is here, not in M0, because M0 was done before it was planned
 | [#10](https://github.com/choatej/ESOExporter/pull/10) | CI workflow and checks: `ci.yml`, Dependabot, repo hygiene script, CI badge | merged |
 | [#11](https://github.com/choatej/ESOExporter/pull/11) | Move `main` protection to the ruleset only; update `CLAUDE.md` | merged |
 | [#12](https://github.com/choatej/ESOExporter/pull/12) | Generate the shared data models from the schema (design docs) | merged |
-| planned | `open-pr` skill and a check that the plan's pull request rows match GitHub (`ci/open-pr-skill`) | planned |
+| [#13](https://github.com/choatej/ESOExporter/pull/13) | `open-pr` skill and a check that the plan's pull request rows match GitHub | open |
 
 The CI and release plan is [CI_AND_RELEASES.md](CI_AND_RELEASES.md). The release rows in
 M8 come from it.
