@@ -183,7 +183,7 @@ milestone work. CI is here, not in M0, because M0 was done before it was planned
 | [#5](https://github.com/choatej/ESOExporter/pull/5) | `CLAUDE.md` for agent sessions | merged |
 | [#6](https://github.com/choatej/ESOExporter/pull/6) | Make the tracked kickoff notes the handoff | merged |
 | [#8](https://github.com/choatej/ESOExporter/pull/8) | Next-step kickoff notes, a session prompt, and `CLAUDE.md` as the single entry point | merged |
-| [#9](https://github.com/choatej/ESOExporter/pull/9) | Tie the roadmap to pull requests and order it by milestone | open |
+| [#9](https://github.com/choatej/ESOExporter/pull/9) | Tie the roadmap to pull requests and order it by milestone | merged |
 | [#10](https://github.com/choatej/ESOExporter/pull/10) | CI workflow and checks: `ci.yml`, Dependabot, repo hygiene script, CI badge | merged |
 | [#11](https://github.com/choatej/ESOExporter/pull/11) | Move `main` protection to the ruleset only; update `CLAUDE.md` | open |
 
@@ -220,8 +220,25 @@ the tree renames them (`fixtureLongText` and `fixtureDropped` are synthetic and 
 Update ARCHITECTURE.md section 6, the roadmap tables, `CLAUDE.md` "Where we are", and the
 changelog in the same PR.
 
-The pull request after is the add-on skeleton, which also creates the small data
-add-on that owns `ESOExporterData` (the name is provisional; ask).
+**What comes after the topic tree, in order.** Each gets its own kickoff questions when it
+starts; these are the ones already known.
+
+1. **Add-on skeleton** (`feat/addon-skeleton`, M2): the main add-on, the small data
+   add-on that owns `ESOExporterData`, the topic registry and the runner. Ask: the data
+   add-on's name (provisional), the live API version to put in the manifests (check the
+   current value; it was 101051 on 2026-11-14), and slash command names. It adds code
+   that touches the game, so it needs an in-game check by the maintainer (`/reloadui`
+   and a look at the SavedVariables file); plan that with them, and deploy with the
+   `deploy-eso-addon` skill.
+2. **Character identity extractor and `save` command** (`feat/identity-extractor`, M2):
+   the first real output. It ends M2 when a real SavedVariables file validates against the
+   schema; the real output then replaces the hand-built fixture after scrubbing.
+
+**Ready any time, outside the milestone order.** The M8 rows `feat/packaging`,
+`ci/release-please` and `ci/release-artifacts` do not depend on the product work
+([CI_AND_RELEASES.md](CI_AND_RELEASES.md)) and can be done earlier if the maintainer
+wants; ask before starting one, because release-please needs the open decisions above
+answered first.
 
 #### Prompt for the next session
 
@@ -245,13 +262,20 @@ Read CLAUDE.md, ask the kickoff questions, then do the next step.
 
 ## Open decisions
 
-1. Name of the export library (currently `LibExportStore`).
+1. Name of the export library (currently `LibExportStore`; kept for now, see
+   [#7](https://github.com/choatej/ESOExporter/pull/7)).
 2. ~~Whether export data lives in a separate small add-on to get its own file.~~
    Decided in [#7](https://github.com/choatej/ESOExporter/pull/7): separate.
 3. Technology and distribution of the default post-processor.
 4. ~~Schema language details and validation.~~ Decided in [#7](https://github.com/choatej/ESOExporter/pull/7): JSON Schema draft
    2020-12, validated with Python `jsonschema` in `task test:python`.
 5. Slash command names.
+6. Name of the data add-on that owns `ESOExporterData` (provisional), settled when it
+   is created in the add-on skeleton pull request.
+7. CI and release choices: generated changelog, one repository version, the token for
+   release pull requests, ESOUI upload automation, a Pages copy of the web tool, release
+   candidates. See "Open decisions" in [CI_AND_RELEASES.md](CI_AND_RELEASES.md); they are
+   needed before the M8 release rows, not before.
 
 ## Assumptions to verify in game
 

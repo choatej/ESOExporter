@@ -46,7 +46,8 @@ storage layout as in ARCHITECTURE.md 4.1.
 The CI and release plan is `docs/CI_AND_RELEASES.md` (semver from conventional commits
 via release-please, release artifacts, post-processor packaging); only the CI workflow is
 implemented, and the rest has open decisions for the maintainer.
-Next (see the pull request roadmap in the plan): the topic tree. After that: add-on skeleton
+Next (see the pull request roadmap in the plan): the topic tree. After that (the plan's
+kickoff notes list the order and the questions already known): add-on skeleton
 with topic registry and runner, then the character identity extractor and `save`
 command. Until the add-on exists there is no real output, so the fixture is hand-built
 to the schema.
