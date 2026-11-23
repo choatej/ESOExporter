@@ -1,7 +1,7 @@
 # CI and release plan
 
 Status: **draft, for the maintainer's review.** Nothing here is implemented yet. It is
-delivered as the steps in the table at the end, and the decisions it needs are in
+delivered as the pull requests in the table at the end, and the decisions it needs are in
 "Open decisions". Anything marked *(verify)* is an assumption to check before relying on it.
 
 ## Principles
@@ -177,15 +177,19 @@ from the add-on they were released with.
 6. **GitHub Pages copy** of the web tool: wanted or not.
 7. **Release candidates** for beta testers: wanted or not.
 
-## Steps
+## Pull requests
 
-| Step | Branch | Title | State |
+These are rows of the pull request roadmap in [PROJECT_PLAN.md](PROJECT_PLAN.md), which
+is where their numbers and links go once they are opened.
+
+| Branch | Title | Milestone | State |
 |---|---|---|---|
-| 10 | `ci/workflow` | CI workflow, PR title check, Dependabot, branch-protection checks, README badge | planned |
-| 11 | `feat/packaging` | Add-on packaging and manifest check scripts, with tests | planned |
-| 12 | `ci/release-please` | release-please config, version markers, `AddOnVersion` derivation, changelog switch | planned |
-| 13 | `ci/release-artifacts` | Release job: build, checksums, attestations, upload; PyPI trusted publishing | planned |
-| 14 | `feat/web-packaging` | Single-file build and headless browser test of the web tool (with milestone M6) | planned |
+| `ci/workflow` | CI workflow, PR title check, Dependabot, branch-protection checks, README badge | housekeeping | planned |
+| `feat/packaging` | Add-on packaging and manifest check scripts, with tests | M8 | planned |
+| `ci/release-please` | release-please config, version markers, `AddOnVersion` derivation, changelog switch | M8 | planned |
+| `ci/release-artifacts` | Release job: build, checksums, attestations, upload; PyPI trusted publishing | M8 | planned |
+| `feat/web-packaging` | Single-file build and headless browser test of the web tool | M6 | planned |
 
-Step 10 is independent of the product work and worth doing before more code lands, so
-every later pull request is checked. Steps 11 to 13 can follow any time before M8.
+The CI workflow is independent of the product work and worth doing before more code
+lands, so every later pull request is checked. The packaging and release rows can follow
+any time before M8.

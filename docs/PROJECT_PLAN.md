@@ -3,7 +3,7 @@
 Status: **draft.** This is the delivery order, not a schedule: no dates, because
 the work is done at the maintainer's pace. How the system fits together is in
 [ARCHITECTURE.md](ARCHITECTURE.md). Update this file in the pull request that
-completes or changes a step.
+completes or changes a row of the pull request roadmap.
 
 ## Working agreements
 
@@ -28,7 +28,6 @@ met and its pull requests are merged.
 - Scaffold, license, contribution workflow, issue and PR templates.
 - Architecture and plan documents.
 - Developer tooling: StyLua, Luacheck, offline Lua test runner, task runner.
-
 *Exit:* `task check` passes locally on a clean checkout.
 
 ### M1: Export library and schema v1
@@ -109,7 +108,8 @@ and a post-processor mapping for each entry.
 
 ## Order and dependencies
 
-- M0, M1, M2, M3 run in that order.
+- M0, M1, M2, M3 run in that order. Housekeeping pull requests (CI, docs, handoff)
+  belong to no milestone and can land at any point.
 - M4 (settings), M5 (Python), and M7 (remaining extractors) can all start once
   M3 is done. M5 only needs real output from M2 or M3.
 - M6 (default post-processor) follows M5, because it reuses its fixtures and model.
@@ -117,40 +117,90 @@ and a post-processor mapping for each entry.
 
 ## Pull request roadmap
 
-| Step | Branch | Title | Milestone | State |
+### Milestone status
+
+Milestones are listed in order. "Needs" is what must be done before the milestone starts;
+see "Order and dependencies" above.
+
+| Milestone | Name | Needs | State | Milestone pull requests |
 |---|---|---|---|---|
-| 1 | `chore/scaffold` | Project scaffold and architecture notes | M0 | merged |
-| 2 | `docs/architecture-and-plan` | Architecture and project plan | M0 | merged |
-| 3 | `chore/dev-tooling` | Lua tooling and offline test runner | M0 | merged |
-| 4 | `feat/export-lib` | `LibExportStore` | M1 | merged |
-| 5 | `docs/agent-context` | `CLAUDE.md` for agent sessions; update this table | M0 | merged |
-| 6 | `feat/schema-v1` | Schema v1 and a first fixture | M1 | in review |
-| 7 | | Topic tree v1 | M1 | planned |
-| 8 | | Add-on skeleton, topic registry and runner | M2 | planned |
-| 9 | | Character identity extractor and `save` command | M2 | planned |
-| 10 | `ci/workflow` | CI workflow and checks | M0 | planned |
-| 11 | `feat/packaging` | Add-on packaging and manifest checks | M8 | planned |
-| 12 | `ci/release-please` | Versioning and release PRs | M8 | planned |
-| 13 | `ci/release-artifacts` | Release artifacts and PyPI publishing | M8 | planned |
-| 14 | `feat/web-packaging` | Single-file web tool build | M6 | planned |
+| M0 | Foundation | none | done | [#1](https://github.com/choatej/ESOExporter/pull/1), [#2](https://github.com/choatej/ESOExporter/pull/2), [#3](https://github.com/choatej/ESOExporter/pull/3) |
+| M1 | Export library and schema v1 | M0 | in progress: topic tree remains | [#4](https://github.com/choatej/ESOExporter/pull/4), [#7](https://github.com/choatej/ESOExporter/pull/7) |
+| M2 | Add-on skeleton | M1 | not started | |
+| M3 | First extractors | M2 | not started | |
+| M4 | Settings and reminders | M3 | not started | |
+| M5 | Python post-processor | real output from M2 or M3 | not started | |
+| M6 | Default post-processor | M5 | not started | |
+| M7 | Remaining extractors | M3 | not started | |
+| M8 | First release | M4, M6, enough of M7 | not started | |
 
-Steps 10 to 14 are specified in [CI_AND_RELEASES.md](CI_AND_RELEASES.md). Step 10 is
-independent of the product work and worth doing early; the maintainer picks the order.
+M4, M5 and M7 are independent of each other, so their rows below are in milestone
+order, not delivery order.
 
-Step numbers are positions in this roadmap, not GitHub pull request numbers (small
-fix-up PRs do not get a step). Later steps are added here as earlier ones merge.
+### Pull requests
+
+Every pull request is a row, with a link once it exists. Planned work has no number
+until its pull request is opened; the pull request that opens it fills the number in.
+Rows for M3 to M8 are an outline and are split or merged when the milestone starts.
+A branch name is shown for planned work so it can be found; merged branches are deleted.
+
+**Milestone work**, in milestone order. Rows within a milestone are in delivery order.
+
+| PR | Title | Milestone | State |
+|---|---|---|---|
+| [#1](https://github.com/choatej/ESOExporter/pull/1) | Project scaffold and architecture notes | M0 | merged |
+| [#2](https://github.com/choatej/ESOExporter/pull/2) | Architecture and project plan | M0 | merged |
+| [#3](https://github.com/choatej/ESOExporter/pull/3) | Lua tooling and offline test runner | M0 | merged |
+| [#4](https://github.com/choatej/ESOExporter/pull/4) | `LibExportStore` | M1 | merged |
+| [#7](https://github.com/choatej/ESOExporter/pull/7) | Schema v1, a hand-built fixture, the Python project (uv), and the CI and release plan | M1 | merged |
+| planned | Topic tree v1 (`feat/topic-tree`) | M1 | planned |
+| planned | Add-on skeleton, data add-on, topic registry and runner (`feat/addon-skeleton`) | M2 | planned |
+| planned | Character identity extractor and `save` command (`feat/identity-extractor`) | M2 | planned |
+| planned | Async extraction under LibAsync (`feat/async-runner`) | M3 | planned |
+| planned | Stats extractor (`feat/topic-stats`) | M3 | planned |
+| planned | Equipment extractor (`feat/topic-equipment`) | M3 | planned |
+| planned | Skills and skill bars extractor (`feat/topic-skills`) | M3 | planned |
+| planned | Champion points extractor (`feat/topic-champion-points`) | M3 | planned |
+| planned | Settings screen driven by the topic tree (`feat/settings-panel`) | M4 | planned |
+| planned | Saved selection and no-argument `save` (`feat/settings-selection`) | M4 | planned |
+| planned | Login reminder and clear (`feat/login-reminder`) | M4 | planned |
+| planned | Port the Python model; normalized JSON output (`feat/python-model`) | M5 | planned |
+| planned | Lean Markdown view and command-line entry point (`feat/python-cli`) | M5 | planned |
+| planned | Default post-processor: browser viewer (`feat/web-viewer`) | M6 | planned |
+| planned | Single-file build and headless browser test (`feat/web-packaging`) | M6 | planned |
+| planned | Remaining extractors, one pull request per topic (`feat/topic-<id>`) | M7 | planned |
+| planned | Add-on packaging and manifest checks (`feat/packaging`) | M8 | planned |
+| planned | release-please versioning and release PRs (`ci/release-please`) | M8 | planned |
+| planned | Release artifacts and PyPI publishing (`ci/release-artifacts`) | M8 | planned |
+| planned | User documentation (`docs/user-guide`) | M8 | planned |
+
+**Housekeeping.** Tooling, docs and handoff changes that belong to no milestone and
+gate none. They happen whenever they are needed, which is why they are numbered between
+milestone work. CI is here, not in M0, because M0 was done before it was planned.
+
+| PR | Title | State |
+|---|---|---|
+| [#5](https://github.com/choatej/ESOExporter/pull/5) | `CLAUDE.md` for agent sessions | merged |
+| [#6](https://github.com/choatej/ESOExporter/pull/6) | Make the tracked kickoff notes the handoff | merged |
+| [#8](https://github.com/choatej/ESOExporter/pull/8) | Next-step kickoff notes, a session prompt, and `CLAUDE.md` as the single entry point | merged |
+| [#9](https://github.com/choatej/ESOExporter/pull/9) | Tie the roadmap to pull requests and order it by milestone | open |
+| planned | CI workflow and checks (`ci/workflow`) | planned |
+
+The CI and release rows are specified in [CI_AND_RELEASES.md](CI_AND_RELEASES.md). The CI
+workflow is independent of the product work and worth doing early; the maintainer
+picks the order.
 
 ### Kickoff notes for the next step
 
 Replace this section when the next step's PR merges. Before writing anything, ask
 the maintainer the questions below in one batch, each with a recommendation.
 
-**Which step first.** Two steps are ready and independent: step 7 (topic tree v1,
-product work) and step 10 (CI, specified in [CI_AND_RELEASES.md](CI_AND_RELEASES.md)).
-Recommendation: step 10 first, so every later pull request is checked. If step 10 goes
-first, its questions are the first list below and step 7's follow after it.
+**Which first.** Two pull requests are ready and independent: the topic tree (product
+work) and the CI workflow (specified in [CI_AND_RELEASES.md](CI_AND_RELEASES.md)).
+Recommendation: CI first, so every later pull request is checked. If CI goes first,
+its questions are the first list below and the topic tree's follow after it.
 
-**Step 10: CI workflow** (`ci/workflow`). Ask:
+**CI workflow** (`ci/workflow`). Ask:
 
 1. **Python matrix.** Recommendation: 3.11 and 3.13 on Linux, 3.12 on Windows and macOS.
 2. **Personal-data guard.** Which invented names may appear in fixtures (the allow
@@ -163,9 +213,10 @@ first, its questions are the first list below and step 7's follow after it.
 
 Then build `.github/workflows/ci.yml` (jobs `pr-title`, `lua`, `python`, `package`
 as far as packaging exists, `repo-hygiene`), `.github/dependabot.yml`, the README CI
-badge, and update this table and the docs. Steps 11 to 13 follow in order.
+badge, and update the roadmap tables and the docs. The packaging and release rows follow
+in order.
 
-**Step 7: topic tree v1.** Ask:
+**Topic tree v1** (`feat/topic-tree`). Ask:
 
 1. **Port scope.** `data/config/tree.json` on the fork branch `feat/config-tree` is
    CharacterMarkdown-shaped (legacy `settings` keys, `topics` that feed its Markdown
@@ -187,10 +238,10 @@ badge, and update this table and the docs. Steps 11 to 13 follow in order.
 Then build: `schema/v1/tree.json` (and its schema), the gate-resolution code in Lua
 as pure functions with offline tests, and the update to the fixture's topic ids if
 the tree renames them (`fixtureLongText` and `fixtureDropped` are synthetic and stay).
-Update ARCHITECTURE.md section 6, this table, `CLAUDE.md` "Where we are", and the
+Update ARCHITECTURE.md section 6, the roadmap tables, `CLAUDE.md` "Where we are", and the
 changelog in the same PR.
 
-The step after is step 8, the add-on skeleton, which also creates the small data
+The pull request after is the add-on skeleton, which also creates the small data
 add-on that owns `ESOExporterData` (the name is provisional; ask).
 
 #### Prompt for the next session
@@ -217,9 +268,9 @@ Read CLAUDE.md, ask the kickoff questions, then do the next step.
 
 1. Name of the export library (currently `LibExportStore`).
 2. ~~Whether export data lives in a separate small add-on to get its own file.~~
-   Decided in step 6: separate.
+   Decided in [#7](https://github.com/choatej/ESOExporter/pull/7): separate.
 3. Technology and distribution of the default post-processor.
-4. ~~Schema language details and validation.~~ Decided in step 6: JSON Schema draft
+4. ~~Schema language details and validation.~~ Decided in [#7](https://github.com/choatej/ESOExporter/pull/7): JSON Schema draft
    2020-12, validated with Python `jsonschema` in `task test:python`.
 5. Slash command names.
 
