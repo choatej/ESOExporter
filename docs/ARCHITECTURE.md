@@ -54,16 +54,25 @@ Data flows one way: game, SavedVariables file, post-processor, output file.
 
 | Module | Responsibility |
 |---|---|
-| Core | Namespace, version, logging, safe-call wrappers for game functions |
-| Topic registry | The catalog of topics: id, scope, cost class, dependencies, extractor |
+| Core | Namespace, version, chat output, game calls, event and command registration (`ESOExporter.lua`) |
+| Topic registry | Maps each topic id of the tree to its extractor; rejects ids that are not tree topics (`Registry.lua`) |
 | Extractors | One per topic. Read the game, return a plain table of raw values |
-| Runner | Resolve the selection, run extractors (async), sanitize, store, report |
+| Runner | Run extractors under `pcall`, sanitize, store at the schema path, report (`Runner.lua`; synchronous until LibAsync arrives in M3) |
 | Settings | Saved defaults and the in-game settings panel |
-| Commands | Slash commands: save, clear, status, settings (names are draft) |
+| Commands | `/esoexport` (alias `/eox`); subcommands are added as needed, so far `save` (`Commands.lua` parses, selects topics and words replies) |
 | Reminder | Login message about stored exports |
 
 An extractor must not format. It returns what the game said: IDs, enums,
 numbers, raw item links, and strings as given. See "Raw data" below.
+
+An extractor file is listed in the manifest after `ESOExporter.lua` and calls
+`ESOExporter.Register("<topic id>", function(id) ... return { ... } end)`. Registering an id
+that is not a topic of the tree, a group, or a topic twice raises at load. The runner calls the
+extractor with its topic id; an error or a result that is not a table fails that topic only, and
+a tree topic with no extractor is counted in the summary. `/esoexport save` with no ids runs the
+effective topics (the tree's defaults until settings exist); with ids, it runs every topic at or
+below each one whatever its setting. Until settings exist, the main add-on declares no
+SavedVariables of its own.
 
 ### 3.2 Export library (`LibExportStore`, name provisional)
 
@@ -204,7 +213,8 @@ fields inside `meta` is not a breaking change. Adding a top-level key is.
    (inventory, achievements) are opt-in.
 3. Run each extractor under `pcall`. A failing extractor is recorded in the run
    report and never aborts the others.
-4. Spread work across frames with LibAsync so the client never stalls.
+4. Spread work across frames with LibAsync so the client never stalls *(M3; the runner
+   is synchronous until then)*.
 5. Sanitize each result into an entry and `Put` it into the container.
 6. Print a one-line summary (counts, size, dropped values) and remind the user
    that the file is written on `/reloadui`, logout or quit.
@@ -250,8 +260,8 @@ fields inside `meta` is not a breaking change. Adding a top-level key is.
   *(verify)*. Settings and exports therefore share one file unless the export
   data is owned by a separate small add-on. Splitting keeps the data file easy
   to find, parse and delete. **Decided: separate.** A small data add-on
-  (provisionally `ESOExporterData`, which lists the `ESOExporterData` global) owns the
-  export file; the main add-on depends on it. It is created with the add-on skeleton.
+  `ESOExporterData` (`src/ESOExporterData/`, which lists the `ESOExporterData` global and has
+  no code) owns the export file; the main add-on depends on it and on `LibExportStore`.
 - SavedVariables are loaded into memory at login, so stored exports cost memory
   and load time until cleared. Exports are therefore meant to be short-lived.
 - The file is written only on `/reloadui`, logout or quit, so a clear reaches
@@ -315,6 +325,7 @@ category is summarized in the project plan.
 
 ```
 src/ESOExporter/       the add-on (folder name must match its manifest name)
+src/ESOExporterData/   the data add-on: owns the ESOExporterData SavedVariables, no code
 src/LibExportStore/    the export library (own manifest, IsLibrary)
 schema/                v1/ envelope schema, tree.json and its schema, topic schemas; fixtures/
 tools/python/          Python post-processor, a uv project (so far: a SavedVariables reader and schema tests)

@@ -133,8 +133,8 @@ see "Order and dependencies" above.
 | Milestone | Name | Needs | State | Milestone pull requests |
 |---|---|---|---|---|
 | M0 | Foundation | none | done | [#1](https://github.com/choatej/ESOExporter/pull/1), [#2](https://github.com/choatej/ESOExporter/pull/2), [#3](https://github.com/choatej/ESOExporter/pull/3) |
-| M1 | Export library and schema v1 | M0 | done once #14 merges | [#4](https://github.com/choatej/ESOExporter/pull/4), [#7](https://github.com/choatej/ESOExporter/pull/7), [#14](https://github.com/choatej/ESOExporter/pull/14) |
-| M2 | Add-on skeleton | M1 | not started | |
+| M1 | Export library and schema v1 | M0 | done | [#4](https://github.com/choatej/ESOExporter/pull/4), [#7](https://github.com/choatej/ESOExporter/pull/7), [#14](https://github.com/choatej/ESOExporter/pull/14) |
+| M2 | Add-on skeleton | M1 | in progress | |
 | M3 | First extractors | M2 | not started | |
 | M4 | Settings and reminders | M3 | not started | |
 | M5 | Python post-processor | real output from M2 or M3 | not started | |
@@ -161,9 +161,9 @@ A branch name is shown for planned work so it can be found; merged branches are 
 | [#3](https://github.com/choatej/ESOExporter/pull/3) | Lua tooling and offline test runner | M0 | merged |
 | [#4](https://github.com/choatej/ESOExporter/pull/4) | `LibExportStore` | M1 | merged |
 | [#7](https://github.com/choatej/ESOExporter/pull/7) | Schema v1, a hand-built fixture, the Python project (uv), and the CI and release plan | M1 | merged |
-| [#14](https://github.com/choatej/ESOExporter/pull/14) | Topic tree v1 and gate resolution | M1 | open |
+| [#14](https://github.com/choatej/ESOExporter/pull/14) | Topic tree v1 and gate resolution | M1 | merged |
 | planned | Add-on skeleton, data add-on, topic registry and runner (`feat/addon-skeleton`) | M2 | planned |
-| planned | Character identity extractor and `save` command (`feat/identity-extractor`) | M2 | planned |
+| planned | Character identity extractor, the first real output (`feat/identity-extractor`) | M2 | planned |
 | planned | Async extraction under LibAsync (`feat/async-runner`) | M3 | planned |
 | planned | Stats extractor (`feat/topic-stats`) | M3 | planned |
 | planned | Equipment extractor (`feat/topic-equipment`) | M3 | planned |
@@ -206,38 +206,37 @@ M8 come from it.
 Replace this section when the next step's PR merges. Before writing anything, ask
 the maintainer the questions below in one batch, each with a recommendation.
 
-**Add-on skeleton** (`feat/addon-skeleton`, M2): the main add-on, the small data add-on
-that owns `ESOExporterData`, the topic registry and the runner. The topic tree PR already
-created `src/ESOExporter/` with a manifest (`ESOExporter.txt`) listing only
-`TopicTreeData.lua` and `TopicTree.lua`, and defined the `ESOExporter` global namespace
-(`ESOExporter.TopicTree`, `ESOExporter.TopicTreeData`); the skeleton builds on those and
-does not redo them. Ask:
+**Character identity extractor** (`feat/identity-extractor`, M2): the first real output. The
+add-on skeleton is in place: `ESOExporter.Register(id, fn)` registers an extractor for a tree
+topic, `/esoexport save` (alias `/eox`) runs the effective topics or the ids given, and the
+runner stores each result as an entry in `ESOExporterData` (owned by the `ESOExporterData`
+data add-on). Add `src/ESOExporter/Extractors/Identity.lua` (listed in the manifest after
+`ESOExporter.lua`), its topic schema, tests with stubbed game calls, and an in-game check. It
+ends M2 when a real SavedVariables file validates against the schema; the scrubbed real
+output then replaces the hand-built fixture. Ask:
 
-1. **Data add-on name.** `ESOExporterData` is provisional (it is also the name of the
-   SavedVariables global). Recommendation: keep it.
-2. **API version.** Check the current live value before writing it into the manifests (it
-   was 101051 on 2026-11-14) and ask the maintainer to confirm it.
-3. **Slash command names.** Recommendation: one root command, `/esoexport`, with
-   subcommands (`save`, then `clear` and `status` later). Topic arguments are tree ids, and
-   a group id expands through `TopicTree.TopicsUnder`.
-4. **Registry shape.** Recommendation: a topic registers an extractor by its tree id
-   (`Registry.Register("character.identity", fn)`); the runner takes the effective topic
-   list from `TopicTree.Topics`, runs each extractor under `pcall`, and warns when a tree
-   topic has no extractor. A registered id that is not a tree topic is an error.
-5. **In-game check.** The skeleton adds code that touches the game, so the maintainer
-   checks it in game (`/reloadui`, then look at the SavedVariables file). Plan that with
-   them, and deploy with the `deploy-eso-addon` skill.
+1. **Fields.** Recommendation: raw ids and numbers only, as in the hand-built fixture
+   (`raceId`, `classId`, `gender`, `alliance`, `level`, `championPoints`), plus anything else
+   cheap and stable the maintainer wants (title id, birth date of the character, server). Names
+   are resolved in post-processing.
+2. **Topic schema location.** Recommendation: `schema/v1/topics/character.identity.schema.json`,
+   referenced from the envelope schema by topic id, so each topic PR adds one file.
+3. **Validating real output.** Recommendation: a Python test that reads a scrubbed copy of the
+   real file (`schema/fixtures/real/`), and a scrub script so the maintainer can regenerate it;
+   ask whether to keep the hand-built fixture for the synthetic `fixture.*` topics.
+4. **In-game check.** Deploy, `/eox save`, `/reloadui`, then validate the file with the Python
+   tools (needs `uv` on the maintainer's machine).
 
-**What comes after the add-on skeleton.**
+**What comes after the identity extractor.** **M3 extractors**, starting with async extraction
+under LibAsync (`feat/async-runner`, the runner is synchronous so far), then one pull request per
+topic id in the tree (`character.stats.*`, `character.equipment.*`, `character.skills.*`,
+`character.champion_points.*`). The tree's ids and groups are a starting catalog: an extractor PR
+may split, merge or rename nodes, and changes `tree.json`, the schema and the fixture together.
 
-1. **Character identity extractor and `save` command** (`feat/identity-extractor`, M2):
-   the first real output. It ends M2 when a real SavedVariables file validates against the
-   schema; the real output then replaces the hand-built fixture after scrubbing. Its
-   topic is `character.identity`.
-2. **M3 extractors**, one pull request per topic id in the tree (`character.stats.*`,
-   `character.equipment.*`, `character.skills.*`, `character.champion_points.*`). The
-   tree's ids and groups are a starting catalog: an extractor PR may split, merge or
-   rename nodes, and changes `tree.json`, the schema and the fixture together.
+**Tooling gaps found in the add-on skeleton session.** The `deploy-eso-addon` skill named in
+`CLAUDE.md` does not exist (the skeleton was copied into the game's AddOns folder by hand), and
+neither ESO API documentation file named there is on disk. Ask the maintainer whether to add a
+deploy skill (or task) and where the API docs now live.
 
 **Ready any time, outside the milestone order.** The M8 rows `feat/packaging`,
 `ci/release-please` and `ci/release-artifacts` do not depend on the product work
@@ -276,11 +275,12 @@ Read CLAUDE.md, ask the kickoff questions, then do the next step.
    second model-generator target (item 6).
 4. ~~Schema language details and validation.~~ Decided in [#7](https://github.com/choatej/ESOExporter/pull/7): JSON Schema draft
    2020-12, validated with Python `jsonschema` in `task test:python`.
-5. Slash command names.
+5. ~~Slash command names.~~ Decided in the add-on skeleton pull request: `/esoexport` with
+   the alias `/eox`, and subcommands added only when needed (`save` so far).
 6. Model generator: tool per target, location (`tools/codegen/` or per project), and
    schema annotations needed. Decide before M5 starts, together with item 3.
-6. Name of the data add-on that owns `ESOExporterData` (provisional), settled when it
-   is created in the add-on skeleton pull request.
+6. ~~Name of the data add-on that owns `ESOExporterData`.~~ Decided in the add-on skeleton
+   pull request: `ESOExporterData` (folder, manifest and SavedVariables global).
 7. CI and release choices: generated changelog, one repository version, the token for
    release pull requests, ESOUI upload automation, a Pages copy of the web tool, release
    candidates. See "Open decisions" in [CI_AND_RELEASES.md](CI_AND_RELEASES.md); they are
