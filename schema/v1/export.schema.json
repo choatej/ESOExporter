@@ -48,9 +48,9 @@
       }
     },
     "topics": {
-      "description": "Entries keyed by topic id. The id pattern is provisional until the topic tree (tree.json) fixes the ids.",
+      "description": "Entries keyed by topic id: the full dotted snake_case path of a topic in tree.json, such as character.stats.offense. The pattern is the same as the id pattern in tree.schema.json. Keys outside the tree are allowed (a newer add-on, a synthetic fixture topic); post-processors skip what they do not know.",
       "type": "object",
-      "propertyNames": { "pattern": "^[a-z][A-Za-z0-9_.]*$" },
+      "propertyNames": { "pattern": "^[a-z][a-z0-9_]*(\\.[a-z][a-z0-9_]*)*$" },
       "additionalProperties": { "$ref": "#/$defs/entry" }
     },
     "entry": {

@@ -11,6 +11,11 @@ files["src/LibExportStore/"] = {
     globals = { "LibExportStore" },
 }
 
+-- The add-on publishes one global namespace, as ESO add-ons do.
+files["src/ESOExporter/"] = {
+    globals = { "ESOExporter" },
+}
+
 -- Offline tests: the runner (tests/lua/run.lua) provides these globals to every spec.
 files["tests/"] = {
     read_globals = {
@@ -22,6 +27,7 @@ files["tests/"] = {
         "falsy",
         "raises",
         "ESO",
+        "ESOExporter",
     },
     ignore = {
         "212", -- unused argument

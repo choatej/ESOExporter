@@ -63,7 +63,10 @@ reasonable time and size.
 
 ### M4: Settings and reminders
 
-- In-game settings screen driven by the topic tree, with a default-export preset.
+- In-game settings screen driven by the topic tree, with fine-grained control: every group
+  and topic can be switched on or off on its own.
+- Presets (named starting points) that a user can pick and then diverge from node by node.
+  Their design is deferred to this milestone; see "Presets" in the open decisions.
 - Saved selection, applied by a no-argument `save`.
 - Login reminder about stored exports, and clear.
 
@@ -130,7 +133,7 @@ see "Order and dependencies" above.
 | Milestone | Name | Needs | State | Milestone pull requests |
 |---|---|---|---|---|
 | M0 | Foundation | none | done | [#1](https://github.com/choatej/ESOExporter/pull/1), [#2](https://github.com/choatej/ESOExporter/pull/2), [#3](https://github.com/choatej/ESOExporter/pull/3) |
-| M1 | Export library and schema v1 | M0 | in progress: topic tree remains | [#4](https://github.com/choatej/ESOExporter/pull/4), [#7](https://github.com/choatej/ESOExporter/pull/7) |
+| M1 | Export library and schema v1 | M0 | done once #14 merges | [#4](https://github.com/choatej/ESOExporter/pull/4), [#7](https://github.com/choatej/ESOExporter/pull/7), [#14](https://github.com/choatej/ESOExporter/pull/14) |
 | M2 | Add-on skeleton | M1 | not started | |
 | M3 | First extractors | M2 | not started | |
 | M4 | Settings and reminders | M3 | not started | |
@@ -158,7 +161,7 @@ A branch name is shown for planned work so it can be found; merged branches are 
 | [#3](https://github.com/choatej/ESOExporter/pull/3) | Lua tooling and offline test runner | M0 | merged |
 | [#4](https://github.com/choatej/ESOExporter/pull/4) | `LibExportStore` | M1 | merged |
 | [#7](https://github.com/choatej/ESOExporter/pull/7) | Schema v1, a hand-built fixture, the Python project (uv), and the CI and release plan | M1 | merged |
-| planned | Topic tree v1 (`feat/topic-tree`) | M1 | planned |
+| [#14](https://github.com/choatej/ESOExporter/pull/14) | Topic tree v1 and gate resolution | M1 | open |
 | planned | Add-on skeleton, data add-on, topic registry and runner (`feat/addon-skeleton`) | M2 | planned |
 | planned | Character identity extractor and `save` command (`feat/identity-extractor`) | M2 | planned |
 | planned | Async extraction under LibAsync (`feat/async-runner`) | M3 | planned |
@@ -193,7 +196,7 @@ milestone work. CI is here, not in M0, because M0 was done before it was planned
 | [#10](https://github.com/choatej/ESOExporter/pull/10) | CI workflow and checks: `ci.yml`, Dependabot, repo hygiene script, CI badge | merged |
 | [#11](https://github.com/choatej/ESOExporter/pull/11) | Move `main` protection to the ruleset only; update `CLAUDE.md` | merged |
 | [#12](https://github.com/choatej/ESOExporter/pull/12) | Generate the shared data models from the schema (design docs) | merged |
-| [#13](https://github.com/choatej/ESOExporter/pull/13) | `open-pr` skill and a check that the plan's pull request rows match GitHub | open |
+| [#13](https://github.com/choatej/ESOExporter/pull/13) | `open-pr` skill and a check that the plan's pull request rows match GitHub | merged |
 
 The CI and release plan is [CI_AND_RELEASES.md](CI_AND_RELEASES.md). The release rows in
 M8 come from it.
@@ -203,48 +206,38 @@ M8 come from it.
 Replace this section when the next step's PR merges. Before writing anything, ask
 the maintainer the questions below in one batch, each with a recommendation.
 
-**Topic tree v1** (`feat/topic-tree`). Ask:
+**Add-on skeleton** (`feat/addon-skeleton`, M2): the main add-on, the small data add-on
+that owns `ESOExporterData`, the topic registry and the runner. The topic tree PR already
+created `src/ESOExporter/` with a manifest (`ESOExporter.txt`) listing only
+`TopicTreeData.lua` and `TopicTree.lua`, and defined the `ESOExporter` global namespace
+(`ESOExporter.TopicTree`, `ESOExporter.TopicTreeData`); the skeleton builds on those and
+does not redo them. Ask:
 
-1. **Port scope.** `data/config/tree.json` on the fork branch `feat/config-tree` is
-   CharacterMarkdown-shaped (legacy `settings` keys, `topics` that feed its Markdown
-   renderer, `format` and `profile` domains). Recommendation: port the structure and
-   gate semantics, drop the legacy settings mapping and the `format` domain, and keep
-   `content` nodes only. Check `git log` for authorship and review lines derived from
-   upstream first (see `CLAUDE.md`).
-2. **Topic ids.** Storage keys under `topics` must be the tree's node ids. The tree
-   uses snake_case path segments (`champion_points`) and the schema's provisional
-   pattern is `^[a-z][A-Za-z0-9_.]*$`. Decide whether a topic key is a leaf id or a
-   full path, then tighten the schema pattern to match.
-3. **Scope per node.** Mark each topic `account` or `character`, since the layout
-   keeps them apart, and give each a cost class (`light` or `heavy`). Recommendation:
-   `heavy` for inventory and achievements, as the architecture says.
-4. **Validation.** Recommendation: a JSON Schema for `tree.json` in `schema/v1/`, checked
-   by the existing Python tests, plus a Lua spec that loads the tree and derives
-   effective states with the gate rules.
+1. **Data add-on name.** `ESOExporterData` is provisional (it is also the name of the
+   SavedVariables global). Recommendation: keep it.
+2. **API version.** Check the current live value before writing it into the manifests (it
+   was 101051 on 2026-11-14) and ask the maintainer to confirm it.
+3. **Slash command names.** Recommendation: one root command, `/esoexport`, with
+   subcommands (`save`, then `clear` and `status` later). Topic arguments are tree ids, and
+   a group id expands through `TopicTree.TopicsUnder`.
+4. **Registry shape.** Recommendation: a topic registers an extractor by its tree id
+   (`Registry.Register("character.identity", fn)`); the runner takes the effective topic
+   list from `TopicTree.Topics`, runs each extractor under `pcall`, and warns when a tree
+   topic has no extractor. A registered id that is not a tree topic is an error.
+5. **In-game check.** The skeleton adds code that touches the game, so the maintainer
+   checks it in game (`/reloadui`, then look at the SavedVariables file). Plan that with
+   them, and deploy with the `deploy-eso-addon` skill.
 
-Keep the planned model generator in mind (M5, architecture 3.4): whatever the tree and
-schema say about topic ids, scope and cost class will become generated types, so prefer
-facts the schema can state (enums, patterns) over conventions in prose.
+**What comes after the add-on skeleton.**
 
-Then build: `schema/v1/tree.json` (and its schema), the gate-resolution code in Lua
-as pure functions with offline tests, and the update to the fixture's topic ids if
-the tree renames them (`fixtureLongText` and `fixtureDropped` are synthetic and stay).
-Update ARCHITECTURE.md section 6, the roadmap tables, `CLAUDE.md` "Where we are", and the
-changelog in the same PR.
-
-**What comes after the topic tree, in order.** Each gets its own kickoff questions when it
-starts; these are the ones already known.
-
-1. **Add-on skeleton** (`feat/addon-skeleton`, M2): the main add-on, the small data
-   add-on that owns `ESOExporterData`, the topic registry and the runner. Ask: the data
-   add-on's name (provisional), the live API version to put in the manifests (check the
-   current value; it was 101051 on 2026-11-14), and slash command names. It adds code
-   that touches the game, so it needs an in-game check by the maintainer (`/reloadui`
-   and a look at the SavedVariables file); plan that with them, and deploy with the
-   `deploy-eso-addon` skill.
-2. **Character identity extractor and `save` command** (`feat/identity-extractor`, M2):
+1. **Character identity extractor and `save` command** (`feat/identity-extractor`, M2):
    the first real output. It ends M2 when a real SavedVariables file validates against the
-   schema; the real output then replaces the hand-built fixture after scrubbing.
+   schema; the real output then replaces the hand-built fixture after scrubbing. Its
+   topic is `character.identity`.
+2. **M3 extractors**, one pull request per topic id in the tree (`character.stats.*`,
+   `character.equipment.*`, `character.skills.*`, `character.champion_points.*`). The
+   tree's ids and groups are a starting catalog: an extractor PR may split, merge or
+   rename nodes, and changes `tree.json`, the schema and the fixture together.
 
 **Ready any time, outside the milestone order.** The M8 rows `feat/packaging`,
 `ci/release-please` and `ci/release-artifacts` do not depend on the product work
@@ -292,6 +285,13 @@ Read CLAUDE.md, ask the kickoff questions, then do the next step.
    release pull requests, ESOUI upload automation, a Pages copy of the web tool, release
    candidates. See "Open decisions" in [CI_AND_RELEASES.md](CI_AND_RELEASES.md); they are
    needed before the M8 release rows, not before.
+8. Presets (M4). Maintainer direction from the topic tree PR: users get fine-grained control
+   over what is exported, and presets are named starting points a user can pick and then
+   diverge from easily, with no CharacterMarkdown-style config layer. The tree is already
+   shaped for it (every node toggles; saved choices are a flat `id -> boolean` overrides table
+   holding only differences from the defaults), so a preset can be an overrides table. Open:
+   whether presets ship in the add-on or live in settings, how a diverged preset is shown,
+   and which presets exist. Decide when M4 starts.
 
 ## Assumptions to verify in game
 

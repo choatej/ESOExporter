@@ -40,8 +40,8 @@ describe("schema fixture", function()
     it("loads as a single ESOExporterData global of schema version 1", function()
         local data = loadFixture()
         eq(data.meta.schema, 1)
-        truthy(data.account.topics.currency)
-        truthy(data.characters["4500000000000001"].topics.identity)
+        truthy(data.account.topics["account.currency"])
+        truthy(data.characters["4500000000000001"].topics["character.identity"])
     end)
 
     it("holds no string the game would drop", function()
@@ -71,7 +71,7 @@ describe("schema fixture", function()
     end)
 
     it("rejoins the long string exactly", function()
-        local entry = loadFixture().characters["4500000000000002"].topics.fixtureLongText
+        local entry = loadFixture().characters["4500000000000002"].topics["fixture.long_text"]
         eq(
             Lib.Restore(entry.data).text,
             "First line of a synthetic long string.\nSecond line, kept whole when it fits.\nThird line ends the text.\n"

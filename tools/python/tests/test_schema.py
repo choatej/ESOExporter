@@ -26,11 +26,11 @@ def errors(document: dict[str, Any]) -> list[str]:
 
 
 def _long_text(d: dict[str, Any]) -> dict[str, Any]:
-    return d["characters"][CHARACTER]["topics"]["fixtureLongText"]["data"]
+    return d["characters"][CHARACTER]["topics"]["fixture.long_text"]["data"]
 
 
 def _currency(d: dict[str, Any]) -> dict[str, Any]:
-    return d["account"]["topics"]["currency"]
+    return d["account"]["topics"]["account.currency"]
 
 
 REJECTIONS: dict[str, Change] = {
@@ -44,6 +44,11 @@ REJECTIONS: dict[str, Change] = {
     "character without name": lambda d: d["characters"][CHARACTER].pop("name"),
     "account without topics": lambda d: d["account"].pop("topics"),
     "bad topic id": lambda d: d["account"]["topics"].update({"Bad-Id": _currency(d)}),
+    "camelCase topic id": lambda d: d["account"]["topics"].update({"craftBag": _currency(d)}),
+    "topic id with an empty segment": lambda d: d["account"]["topics"].update(
+        {"account..bank": _currency(d)}
+    ),
+    "topic id ending in a dot": lambda d: d["account"]["topics"].update({"account.": _currency(d)}),
     "entry of another kind": lambda d: _currency(d).update(kind="blob"),
     "entry without report": lambda d: _currency(d).pop("report"),
     "negative count": lambda d: _currency(d)["report"].update(nodes=-1),
@@ -72,7 +77,7 @@ def test_minimal_export_is_valid() -> None:
 
 def test_empty_lists_may_arrive_as_empty_tables() -> None:
     # An empty Lua table parses as {}; the fixture's reports already rely on it.
-    entry = FIXTURE["characters"][CHARACTER]["topics"]["identity"]
+    entry = FIXTURE["characters"][CHARACTER]["topics"]["character.identity"]
     assert entry["report"]["droppedList"] == {}
 
 

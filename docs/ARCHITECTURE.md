@@ -92,9 +92,11 @@ The versioned contract between the add-on and every post-processor, kept in
 
 - The storage envelope (`schema/v1/export.schema.json`, JSON Schema draft 2020-12)
   and, as topics are added, the per-topic shapes. See `schema/README.md`.
-- The topic tree (`tree.json`): ids, labels, parents, defaults and cost class.
-  It is the single source of truth for the settings screen and for the
-  post-processors' topic selection.
+- The topic tree (`schema/v1/tree.json`, shape in `tree.schema.json`): ids, labels,
+  nesting, defaults, scope and cost class. It is the single source of truth for the settings
+  screen and for the post-processors' topic selection. The game cannot read JSON, so the add-on
+  loads a generated Lua copy (`src/ESOExporter/TopicTreeData.lua`); a test fails if the copy is
+  out of date.
 - Golden fixtures: scrubbed SavedVariables files plus the expected output of each
   post-processor.
 
@@ -149,16 +151,18 @@ ESOExporterData = {
     server = "NA Megaserver",
   },
   account = {                        -- account-level topics
-    topics = { currency = <entry>, ... },
+    topics = { ["account.currency"] = <entry>, ... },
   },
   characters = {
     ["<characterId>"] = {            -- stable id, not the name
       name = "...",
-      topics = { equipment = <entry>, ... },
+      topics = { ["character.equipment.worn"] = <entry>, ... },
     },
   },
 }
 ```
+
+A topic key is the topic's full dotted id from the topic tree (section 6).
 
 An `<entry>` is `{ kind = "data", timestamp = <epoch>, data = <table>, report = <table> }`
 (what `LibExportStore.NewEntry` builds). Characters are keyed by character id, a
@@ -207,17 +211,38 @@ fields inside `meta` is not a breaking change. Adding a top-level key is.
 
 ## 6. Settings and the topic tree
 
-- **Structure and values are separate.** `tree.json` is fixed and never saved.
-  Saved values are one flat table, `path -> boolean`, and only entries that
-  differ from the default are stored. SavedVariables cannot hold functions or
-  cycles, which a parent-linked tree would need.
-- **Gate semantics.** A node is effective when it and every ancestor are on. A
-  child's stored value survives its parent being switched off. The effective
-  state is derived top-down in one pass and kept in memory only.
+- **Nodes.** The tree is made of *groups* (they only gate what is below them) and *topics*
+  (leaves; each is one stored entry). Every node has a full dotted `id` in snake_case
+  (`character.stats.offense`), a label, and a `default`. The two roots are the scopes,
+  `account` and `character`. A topic also has a `scope` (equal to its root; it says where the
+  entry is stored) and a `cost` (`light` or `heavy`). Heavy topics are off by default and run
+  only when asked for. Ids are unique, and each id is its parent's id plus one segment.
+- **A topic's id is its storage key.** The entry lives at
+  `characters[<characterId>].topics["character.stats.offense"]` (or under `account.topics`).
+  The export schema applies the same id pattern to topic keys, so a key that is not a
+  well-formed path is rejected. Keys the tree does not know are allowed, so a file from a
+  newer add-on still validates and post-processors skip what they do not know.
+- **Fine-grained control.** Every node, group or topic, can be switched on or off by itself.
+  A user is never forced to pick a bundle.
+- **Structure and values are separate.** The tree is fixed and never saved. Saved choices
+  are one flat table, `id -> boolean` (overrides), and only entries that differ from the
+  node's default are stored (`TopicTree.Compact`). SavedVariables cannot hold functions or
+  cycles, which a parent-linked tree would need. A saved id that a later version removed is
+  ignored.
+- **Gate semantics.** A node is effective when it and every ancestor are on. A child's
+  stored value survives its parent being switched off, and counts again when the parent is
+  switched back on. The effective state is derived top-down in one pass and kept in memory
+  only (`TopicTree.Resolve`).
+- **Code.** `src/ESOExporter/TopicTree.lua` is pure Lua with no game calls: `Index` (loads
+  and validates the tree), `Resolve`, `Value`, `Topics` (effective topic ids, optionally of
+  one scope), `TopicsUnder` (a group's topics, for command arguments) and `Compact`.
+- **Presets are deferred to the settings milestone (M4).** The direction is named starting
+  points that a user can pick and then diverge from node by node. Because choices are an
+  overrides table, a preset can be one. There is no CharacterMarkdown-style config layer.
 - **Panel.** The settings screen uses LibAddonMenu-2.0 *(verify that submenus
-  can express the tree depth; otherwise a small custom panel)*. A "default
-  export" preset covers the common case in one click.
-- **Commands** accept the same topic paths for one-off exports.
+  can express the tree depth; otherwise a small custom panel)*.
+- **Commands** accept the same ids for one-off exports; a group id means every topic
+  below it.
 
 ## 7. SavedVariables handling
 
@@ -291,7 +316,7 @@ category is summarized in the project plan.
 ```
 src/ESOExporter/       the add-on (folder name must match its manifest name)
 src/LibExportStore/    the export library (own manifest, IsLibrary)
-schema/                v1/ envelope and topic schemas, tree.json, fixtures/
+schema/                v1/ envelope schema, tree.json and its schema, topic schemas; fixtures/
 tools/python/          Python post-processor, a uv project (so far: a SavedVariables reader and schema tests)
 tools/web/             default post-processor
 tools/codegen/         generates the shared data models from the schema (planned, M5)

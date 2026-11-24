@@ -1,0 +1,66 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/choatej/ESOExporter/schema/v1/tree.schema.json",
+  "title": "ESOExporter topic tree, version 1",
+  "description": "The shape of tree.json: everything a user can switch on or off, as a tree of groups and topics. A group only gates the nodes below it. A topic is a leaf and is one stored entry, keyed by its id. Rules a schema cannot state (ids unique, each id its parent's id plus one segment, a topic's scope equal to its root's id) are checked by the tests and by the Lua loader.",
+  "type": "object",
+  "required": ["version", "nodes"],
+  "additionalProperties": false,
+  "properties": {
+    "$schema": { "type": "string" },
+    "version": { "const": 1 },
+    "nodes": {
+      "description": "The roots. Today they are the two scopes, account and character.",
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/node" }
+    }
+  },
+  "$defs": {
+    "id": {
+      "description": "The full dotted path from the root, in snake_case. A topic's id is also its storage key under topics, so export.schema.json applies this same pattern to topic keys.",
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9_]*(\\.[a-z][a-z0-9_]*)*$"
+    },
+    "node": {
+      "oneOf": [{ "$ref": "#/$defs/group" }, { "$ref": "#/$defs/topic" }]
+    },
+    "group": {
+      "type": "object",
+      "required": ["id", "type", "label", "default", "children"],
+      "additionalProperties": false,
+      "properties": {
+        "id": { "$ref": "#/$defs/id" },
+        "type": { "const": "group" },
+        "label": { "type": "string", "minLength": 1 },
+        "description": { "type": "string" },
+        "default": { "type": "boolean" },
+        "children": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "$ref": "#/$defs/node" }
+        }
+      }
+    },
+    "topic": {
+      "type": "object",
+      "required": ["id", "type", "label", "default", "scope", "cost"],
+      "additionalProperties": false,
+      "properties": {
+        "id": { "$ref": "#/$defs/id" },
+        "type": { "const": "topic" },
+        "label": { "type": "string", "minLength": 1 },
+        "description": { "type": "string" },
+        "default": { "type": "boolean" },
+        "scope": {
+          "description": "Where the entry is stored: under account.topics, or under characters[<id>].topics.",
+          "enum": ["account", "character"]
+        },
+        "cost": {
+          "description": "heavy topics are large or slow, are off by default and run only when asked for.",
+          "enum": ["light", "heavy"]
+        }
+      }
+    }
+  }
+}
