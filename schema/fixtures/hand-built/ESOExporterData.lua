@@ -1,5 +1,5 @@
 -- Hand-built fixture for schema v1. It is NOT output from the add-on (none exists yet) and
--- holds no real character or account data. The topics fixtureLongText and fixtureDropped are
+-- holds no real character or account data. The topics fixture.long_text and fixture.dropped are
 -- synthetic: they exist to exercise $parts strings and the report's dropped list. Replace this
 -- file with scrubbed real output once the add-on produces some.
 -- Written the way the game writes SavedVariables: one global assignment, tab indented.
@@ -15,7 +15,7 @@ ESOExporterData =
 	},
 	["account"] = {
 		["topics"] = {
-			["currency"] = {
+			["account.currency"] = {
 				["kind"] = "data",
 				["timestamp"] = 1795000000,
 				["data"] = {
@@ -50,7 +50,7 @@ ESOExporterData =
 		["4500000000000001"] = {
 			["name"] = "Test Character One",
 			["topics"] = {
-				["identity"] = {
+				["character.identity"] = {
 					["kind"] = "data",
 					["timestamp"] = 1795000000,
 					["data"] = {
@@ -80,7 +80,7 @@ ESOExporterData =
 		["4500000000000002"] = {
 			["name"] = "Test Character Two",
 			["topics"] = {
-				["identity"] = {
+				["character.identity"] = {
 					["kind"] = "data",
 					["timestamp"] = 1795000060,
 					["data"] = {
@@ -105,7 +105,7 @@ ESOExporterData =
 						["truncated"] = false,
 					},
 				},
-				["fixtureLongText"] = {
+				["fixture.long_text"] = {
 					["kind"] = "data",
 					["timestamp"] = 1795000060,
 					["data"] = {
@@ -131,7 +131,7 @@ ESOExporterData =
 						["truncated"] = false,
 					},
 				},
-				["fixtureDropped"] = {
+				["fixture.dropped"] = {
 					["kind"] = "data",
 					["timestamp"] = 1795000060,
 					["data"] = {

@@ -7,6 +7,18 @@ the project follows [Semantic Versioning](https://semver.org/) once it is releas
 ## [Unreleased]
 
 ### Added
+- Topic tree v1 (`schema/v1/tree.json`, `tree.schema.json`): a fresh tree of groups and topics
+  with full dotted snake_case ids, `account` or `character` scope and a `light` or `heavy`
+  cost, where every node can be switched on or off on its own. Not ported from
+  CharacterMarkdown's config. A generated Lua copy (`src/ESOExporter/TopicTreeData.lua`,
+  `tools/python/scripts/gen_tree_lua.py`) is what the add-on loads, and a test keeps it current.
+- `ESOExporter.TopicTree` (`src/ESOExporter/TopicTree.lua`): pure functions that index and
+  validate the tree, derive effective state from overrides with the gate rules, list topics
+  by scope or under a group, and compact overrides to the differences from the defaults. The
+  add-on folder and manifest now exist but do nothing else yet; presets are deferred to M4.
+- The export schema now requires topic keys to be full dotted snake_case paths, and the
+  hand-built fixture's topics are renamed to match (`account.currency`, `character.identity`,
+  and the synthetic `fixture.long_text` and `fixture.dropped`).
 - An `open-pr` project skill for the order of PR bookkeeping, and hygiene checks that the plan's
   pull request rows are well formed (always) and match GitHub (`task hygiene:prs`).
 - Design: the shared data models of both post-processors are generated from the schema and

@@ -1,3 +1,4 @@
 .claude/
 node_modules/
 schema/fixtures/
+src/ESOExporter/TopicTreeData.lua
