@@ -9,8 +9,9 @@ desktop.ini
 *.swp
 *~
 
-# Local tooling (Claude Code worktrees and settings)
-/.claude/
+# Local tooling (Claude Code worktrees and settings); the project skills are tracked
+/.claude/*
+!/.claude/skills/
 
 # Build output
 /dist/

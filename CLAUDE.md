@@ -89,6 +89,9 @@ command names.
   are the maintainer's: do not change them unasked. If a CI job is renamed, the ruleset's
   required check names must change with it.
 - Do not merge PRs unless the maintainer asks you to.
+- **Use the `open-pr` skill** (`.claude/skills/open-pr/`) to open every PR. It has the order
+  of the checks, the docs, and the plan row that needs the PR's own number (open, then add
+  the row, then push again; `task hygiene:prs` verifies it).
 - PR titles are Conventional Commits (`feat(addon): ...`); the title becomes the
   squash commit. Branch prefixes: `feat/ fix/ docs/ chore/ refactor/ test/`.
 - Stacked PRs are fine; follow the procedure in CONTRIBUTING.md exactly (it
@@ -112,6 +115,7 @@ task check     # format check, luacheck, offline tests
 task format    # apply StyLua
 task test      # Lua tests only; `task test -- export` filters by spec name
 task hygiene       # repo hygiene: no personal data, fixture names, manifests
+task hygiene:prs   # also compare the plan's PR rows with GitHub (needs a logged-in gh)
 task python:check  # Python (tools/python, a uv project): black, ruff, pyrefly, pytest
 task test:python   # Python tests only, including schema validation
 lua5.1 tests/lua/run.lua   # also run under stock Lua 5.1, closer to the game

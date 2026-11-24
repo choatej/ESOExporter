@@ -56,6 +56,11 @@ tasks:
     cmds:
       - python3 tools/python/scripts/check_hygiene.py
 
+  hygiene:prs:
+    desc: Compare the plan's pull request rows with GitHub (needs a logged-in gh; not run in CI)
+    cmds:
+      - python3 tools/python/scripts/check_hygiene.py --prs
+
   check:
     desc: Everything CI will run later - formatting, lint and tests
     cmds:
