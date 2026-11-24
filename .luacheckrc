@@ -45,7 +45,6 @@ files["tests/"] = {
         "falsy",
         "raises",
         "ESO",
-        "ESOExporter",
     },
     ignore = {
         "212", -- unused argument
