@@ -133,7 +133,7 @@ see "Order and dependencies" above.
 | Milestone | Name | Needs | State | Milestone pull requests |
 |---|---|---|---|---|
 | M0 | Foundation | none | done | [#1](https://github.com/choatej/ESOExporter/pull/1), [#2](https://github.com/choatej/ESOExporter/pull/2), [#3](https://github.com/choatej/ESOExporter/pull/3) |
-| M1 | Export library and schema v1 | M0 | in progress: topic tree remains | [#4](https://github.com/choatej/ESOExporter/pull/4), [#7](https://github.com/choatej/ESOExporter/pull/7) |
+| M1 | Export library and schema v1 | M0 | done once #14 merges | [#4](https://github.com/choatej/ESOExporter/pull/4), [#7](https://github.com/choatej/ESOExporter/pull/7), [#14](https://github.com/choatej/ESOExporter/pull/14) |
 | M2 | Add-on skeleton | M1 | not started | |
 | M3 | First extractors | M2 | not started | |
 | M4 | Settings and reminders | M3 | not started | |
@@ -161,7 +161,7 @@ A branch name is shown for planned work so it can be found; merged branches are 
 | [#3](https://github.com/choatej/ESOExporter/pull/3) | Lua tooling and offline test runner | M0 | merged |
 | [#4](https://github.com/choatej/ESOExporter/pull/4) | `LibExportStore` | M1 | merged |
 | [#7](https://github.com/choatej/ESOExporter/pull/7) | Schema v1, a hand-built fixture, the Python project (uv), and the CI and release plan | M1 | merged |
-| planned | Topic tree v1 (`feat/topic-tree`) | M1 | planned |
+| [#14](https://github.com/choatej/ESOExporter/pull/14) | Topic tree v1 and gate resolution | M1 | open |
 | planned | Add-on skeleton, data add-on, topic registry and runner (`feat/addon-skeleton`) | M2 | planned |
 | planned | Character identity extractor and `save` command (`feat/identity-extractor`) | M2 | planned |
 | planned | Async extraction under LibAsync (`feat/async-runner`) | M3 | planned |
@@ -196,7 +196,7 @@ milestone work. CI is here, not in M0, because M0 was done before it was planned
 | [#10](https://github.com/choatej/ESOExporter/pull/10) | CI workflow and checks: `ci.yml`, Dependabot, repo hygiene script, CI badge | merged |
 | [#11](https://github.com/choatej/ESOExporter/pull/11) | Move `main` protection to the ruleset only; update `CLAUDE.md` | merged |
 | [#12](https://github.com/choatej/ESOExporter/pull/12) | Generate the shared data models from the schema (design docs) | merged |
-| [#13](https://github.com/choatej/ESOExporter/pull/13) | `open-pr` skill and a check that the plan's pull request rows match GitHub | open |
+| [#13](https://github.com/choatej/ESOExporter/pull/13) | `open-pr` skill and a check that the plan's pull request rows match GitHub | merged |
 
 The CI and release plan is [CI_AND_RELEASES.md](CI_AND_RELEASES.md). The release rows in
 M8 come from it.
