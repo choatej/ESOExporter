@@ -9,6 +9,11 @@ tasks:
       - task --list
     silent: true
 
+  setup:
+    desc: Check the development environment (tools/dev-setup.sh; add -- --install to install)
+    cmds:
+      - tools/dev-setup.sh {{.CLI_ARGS}}
+
   format:
     desc: Format all Lua files
     cmds:

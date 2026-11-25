@@ -3,7 +3,8 @@
 Guidance for Claude Code sessions in this repository. Read this first, then
 [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) (the design) and
 [docs/PROJECT_PLAN.md](docs/PROJECT_PLAN.md) (milestones, PR roadmap, open decisions);
-[docs/CI_AND_RELEASES.md](docs/CI_AND_RELEASES.md) is the draft CI and release plan.
+[docs/CI_AND_RELEASES.md](docs/CI_AND_RELEASES.md) is the draft CI and release plan, and
+[docs/DEVELOPMENT.md](docs/DEVELOPMENT.md) sets up a machine.
 
 ## What this is
 
@@ -28,8 +29,9 @@ then do the next step."* This file is the single entry point; do this:
 4. Finish by updating "Where we are" below, the plan's milestone and pull request tables and
    the kickoff notes for the work after it, in the same PR.
 
-`uv` may not be installed (the Python project in `tools/python` uses it). Tell the
-maintainer rather than installing anything system-wide.
+On a machine you have not checked yet, run `tools/dev-setup.sh` (check only) and tell the
+maintainer what is missing. Do not install anything unasked; `--install` (user-local, no sudo)
+and the system packages it prints are the maintainer's call. Setup is in `docs/DEVELOPMENT.md`.
 
 ## Where we are
 
@@ -113,8 +115,8 @@ default post-processor's technology.
 
 ## Commands
 
-Needs Task, LuaJIT, StyLua and Luacheck (installed on the maintainer's machine) and
-[uv](https://docs.astral.sh/uv/) for the Python project (`tools/python`; may need installing).
+Needs Task, LuaJIT, Lua 5.1, Luacheck, StyLua 0.20.0 and [uv](https://docs.astral.sh/uv/);
+`tools/dev-setup.sh` checks them and `docs/DEVELOPMENT.md` says how to get them.
 
 ```sh
 task check     # format check, luacheck, offline tests
@@ -143,7 +145,8 @@ Run both LuaJIT and stock `lua5.1` before calling Lua work done: they differ
 - Manifest folder name must equal the manifest file name. Live API version was
   101051 (game 12.1.7) on 2026-11-14; check the current value before bumping.
 - Deploy to the game with the `deploy-eso-addon` skill, not ad hoc copying or
-  project install tasks.
+  project install tasks. It is a personal skill (`~/.claude/skills/`), not in the repo; if it
+  is missing, say so and ask before copying by hand (see `docs/DEVELOPMENT.md`).
 
 ## Source material outside this repo
 
@@ -166,8 +169,9 @@ All read-only references. Nothing here is a dependency.
   including a real `SavedVariables` file. Use them to design fixtures. They
   contain real character and account names, so scrub anything derived from them.
 - ESO API reference: `~/src/CharacterMarkdown/ESOUIDocumentationP50.txt` is for API
-  101050 and `docs/ESOUIDocumentation.txt` for 101048. Both are older than the
-  live 101051, so confirm any function or constant in game before relying on it.
+  101050 and `docs/ESOUIDocumentation.txt` (git-ignored) for 101048. Both are older than the
+  live 101051, so confirm any function or constant in game before relying on it. Either may
+  be missing on a new machine; `docs/DEVELOPMENT.md` says where they come from.
 - The upstream-PR hold on CharacterMarkdown is a separate matter and does not
   affect this repository.
 

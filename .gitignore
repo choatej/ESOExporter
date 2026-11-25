@@ -34,6 +34,9 @@ node_modules/
 # git worktree starts without them; see "Session handoff" in CLAUDE.md.
 /.local/
 
+# ESO API documentation from ZOS (large, not ours to publish); see docs/DEVELOPMENT.md.
+/docs/ESOUIDocumentation*.txt
+
 # Personal data: real SavedVariables files and exports must never be committed.
 # Put scrubbed fixtures under schema/fixtures/ instead.
 /SavedVariables/

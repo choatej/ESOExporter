@@ -54,3 +54,7 @@ the project follows [Semantic Versioning](https://semver.org/) once it is releas
   the project plan.
 - `docs/CI_AND_RELEASES.md`: a draft plan for CI, semver and conventional-commit releases,
   release artifacts and post-processor packaging.
+- Development environment guide (`docs/DEVELOPMENT.md`) for working alone or with Claude Code,
+  and `tools/dev-setup.sh` (`task setup`): checks every tool, login and per-machine item a
+  session needs, and with `--install` puts pinned, checksum-verified StyLua, Task and uv in
+  `~/.local/bin` without sudo. The ESO API documentation file is now git-ignored.

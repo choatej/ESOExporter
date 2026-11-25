@@ -331,6 +331,7 @@ schema/                v1/ envelope schema, tree.json and its schema, topic sche
 tools/python/          Python post-processor, a uv project (so far: a SavedVariables reader and schema tests)
 tools/web/             default post-processor
 tools/codegen/         generates the shared data models from the schema (planned, M5)
+tools/dev-setup.sh     checks a development machine and installs user-local tools (docs/DEVELOPMENT.md)
 tests/lua/             offline Lua tests
 .github/               CI workflow (ci.yml), Dependabot, issue and PR templates
 docs/                  this file and the project plan
