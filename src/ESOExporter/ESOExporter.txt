@@ -4,7 +4,7 @@
 ## AddOnVersion: 1
 ## APIVersion: 101051
 ## DependsOn: LibExportStore>=1 ESOExporterData>=1
-## Description: Exports character and account data through SavedVariables. Work in progress: /esoexport save runs, but no topic has an extractor yet.
+## Description: Exports character and account data through SavedVariables. Work in progress: /esoexport save runs; only the character identity topic has an extractor so far.
 
 ## This Add-On is not created by, affiliated with or sponsored by ZeniMax Media Inc. or its affiliates. The Elder Scrolls® and related logos are registered trademarks or trademarks of ZeniMax Media Inc. in the United States and/or other countries. All rights reserved.
 
@@ -14,3 +14,4 @@ Registry.lua
 Runner.lua
 Commands.lua
 ESOExporter.lua
+Extractors/Identity.lua

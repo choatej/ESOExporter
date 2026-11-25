@@ -1,0 +1,16 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/choatej/ESOExporter/schema/v1/topics/character.identity.schema.json",
+  "title": "character.identity",
+  "description": "The data of a character.identity entry: raw ids and numbers from the game, no names. Race, class and alliance ids are resolved to names in post-processing. Fields may be added without a schema bump, so extra keys are allowed.",
+  "type": "object",
+  "required": ["raceId", "classId", "gender", "alliance", "level", "championPoints"],
+  "properties": {
+    "raceId": { "type": "integer", "minimum": 1 },
+    "classId": { "type": "integer", "minimum": 1 },
+    "gender": { "type": "integer", "minimum": 1, "description": "The game's gender enum value." },
+    "alliance": { "type": "integer", "minimum": 0, "description": "The game's alliance enum value." },
+    "level": { "type": "integer", "minimum": 1 },
+    "championPoints": { "type": "integer", "minimum": 0 }
+  }
+}

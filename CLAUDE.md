@@ -42,7 +42,7 @@ schema v1 (`schema/v1/export.schema.json`), a hand-built fixture
 the CI and release plan, and CI (`.github/workflows/ci.yml`; jobs `pr-title`, `lua`,
 `python`, `repo-hygiene`; Dependabot), all required on `main`, the model-generator design (#12),
 the `open-pr` skill (#13), the topic tree (#14), the add-on skeleton (#15) and the development
-setup guide and `tools/dev-setup.sh` (#16). M0 and M1 are done; M2 has one pull request left. Decided with the
+setup guide and `tools/dev-setup.sh` (#16). M0, M1 and M2 are done. Decided with the
 maintainer in #7: keep the name `LibExportStore`; export data lives in a separate small data
 add-on with its own SavedVariables file; JSON Schema draft 2020-12 validated with Python
 `jsonschema`; storage layout as in ARCHITECTURE.md 4.1.
@@ -60,8 +60,11 @@ Decided with the maintainer in the add-on skeleton PR (#15): the data add-on is
 `ESOExporterData` (`src/ESOExporterData/`, no code); API version 101051 only; one slash
 command `/esoexport` with the alias `/eox`, and subcommands added only when needed (`save` so
 far); extractors register by tree id (`ESOExporter.Register`), and the runner runs them under
-`pcall`. Next: the character identity extractor, which ends M2 with a real SavedVariables file
-that validates. Until then the fixture is hand-built to the schema.
+`pcall`. The character identity extractor (`src/ESOExporter/Extractors/Identity.lua`, schema in
+`schema/v1/topics/`, one file per topic) ran in game (API 101051, 12.1.7): raw ids and numbers
+only, and its scrubbed output (`schema/fixtures/real/identity.lua`, made with
+`tools/python/scripts/scrub_export.py`) validates. M2 is done. The hand-built fixture stays for
+the synthetic topics. Next: async extraction (LibAsync), then one extractor pull request per topic.
 
 The next step's questions and scope, and a ready-to-paste prompt for the next session,
 are in "Kickoff notes" in the plan. Ask those questions first.

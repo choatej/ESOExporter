@@ -10,13 +10,15 @@ import pytest
 from jsonschema import Draft202012Validator
 
 from esoexporter import luadata
+from esoexporter.schema import export_validator
 
 ROOT = Path(__file__).resolve().parents[3]
 SCHEMA = json.loads((ROOT / "schema/v1/export.schema.json").read_text(encoding="utf-8"))
 FIXTURE = luadata.load(ROOT / "schema/fixtures/hand-built/ESOExporterData.lua")["ESOExporterData"]
 CHARACTER = "4500000000000002"
+CHARACTER_ONE = "4500000000000001"
 
-VALIDATOR = Draft202012Validator(SCHEMA)
+VALIDATOR = export_validator()
 
 Change = Callable[[dict[str, Any]], object]
 
@@ -31,6 +33,10 @@ def _long_text(d: dict[str, Any]) -> dict[str, Any]:
 
 def _currency(d: dict[str, Any]) -> dict[str, Any]:
     return d["account"]["topics"]["account.currency"]
+
+
+def _identity(d: dict[str, Any]) -> dict[str, Any]:
+    return d["characters"][CHARACTER_ONE]["topics"]["character.identity"]["data"]
 
 
 REJECTIONS: dict[str, Change] = {
@@ -57,6 +63,10 @@ REJECTIONS: dict[str, Change] = {
     "empty $parts": lambda d: _long_text(d).update(text={"$parts": []}),
     "$parts with another key": lambda d: _long_text(d)["text"].update(extra=1),
     "$parts holding a number": lambda d: _long_text(d).update(text={"$parts": [1]}),
+    "identity without a level": lambda d: _identity(d).pop("level"),
+    "identity with a name for the race": lambda d: _identity(d).update(raceId="High Elf"),
+    "identity with a fractional level": lambda d: _identity(d).update(level=50.5),
+    "identity with negative champion points": lambda d: _identity(d).update(championPoints=-1),
     "reserved key beside others": lambda d: _currency(d)["data"].update(
         {"$parts": ["a"], "other": 1}
     ),

@@ -82,6 +82,25 @@ function Stubs.Game(values)
     _G.GetTimeStamp = function()
         return values.timestamp or 1795000000
     end
+    local identity = values.identity or {}
+    _G.GetUnitRaceId = function()
+        return identity.raceId or 1
+    end
+    _G.GetUnitClassId = function()
+        return identity.classId or 2
+    end
+    _G.GetUnitGender = function()
+        return identity.gender or 2
+    end
+    _G.GetUnitAlliance = function()
+        return identity.alliance or 1
+    end
+    _G.GetUnitLevel = function()
+        return identity.level or 50
+    end
+    _G.GetPlayerChampionPointsEarned = function()
+        return identity.championPoints or 810
+    end
     return game
 end
 

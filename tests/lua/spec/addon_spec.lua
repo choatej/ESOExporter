@@ -52,12 +52,12 @@ describe("ESOExporter add-on", function()
 
     it("saves meta from the game, and an extractor's entry under the current character", function()
         local game = loadAll({ characterId = "4500000000000007", characterName = "Test Character Seven" })
-        ESOExporter.Register("character.identity", function()
+        ESOExporter.Register("character.stats.offense", function()
             return { level = 50 }
         end)
         game.fire(EVENT_ADD_ON_LOADED, "ESOExporter")
 
-        SLASH_COMMANDS["/eox"]("save character.identity")
+        SLASH_COMMANDS["/eox"]("save character.stats.offense")
 
         eq(ESOExporterData.meta, {
             schema = 1,
@@ -69,8 +69,8 @@ describe("ESOExporter add-on", function()
         })
         local character = ESOExporterData.characters["4500000000000007"]
         eq(character.name, "Test Character Seven")
-        eq(character.topics["character.identity"].data, { level = 50 })
-        eq(character.topics["character.identity"].timestamp, 1795000000)
+        eq(character.topics["character.stats.offense"].data, { level = 50 })
+        eq(character.topics["character.stats.offense"].timestamp, 1795000000)
         truthy(game.printed[1]:find("saved 1 topic", 1, true), game.printed[1])
     end)
 
@@ -83,11 +83,24 @@ describe("ESOExporter add-on", function()
         eq(ESOExporterData.meta.schema, 1)
     end)
 
-    it("with no extractors, saves only meta and says the topics have none yet", function()
+    it("saves the character's identity as raw ids and numbers", function()
+        local game = loadAll({
+            identity = { raceId = 3, classId = 6, gender = 1, alliance = 2, level = 50, championPoints = 1234 },
+        })
+        game.fire(EVENT_ADD_ON_LOADED, "ESOExporter")
+        SLASH_COMMANDS["/eox"]("save character.identity")
+        local entry = ESOExporterData.characters["4500000000000001"].topics["character.identity"]
+        eq(entry.data, { raceId = 3, classId = 6, gender = 1, alliance = 2, level = 50, championPoints = 1234 })
+        eq(entry.report.dropped, 0)
+        truthy(game.printed[1]:find("saved 1 topic", 1, true), game.printed[1])
+    end)
+
+    it("a plain save stores the identity and says the other topics have no extractor yet", function()
         local game = loadAll()
         game.fire(EVENT_ADD_ON_LOADED, "ESOExporter")
         SLASH_COMMANDS["/esoexport"]("save")
-        eq(ESOExporterData.characters, nil)
+        truthy(ESOExporterData.characters["4500000000000001"].topics["character.identity"])
+        eq(ESOExporterData.account, nil, "no account topic has an extractor")
         truthy(game.printed[1]:find("no extractor yet", 1, true), game.printed[1])
     end)
 
