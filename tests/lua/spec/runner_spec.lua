@@ -174,3 +174,109 @@ describe("Runner.Run", function()
         end, "needs meta")
     end)
 end)
+
+describe("Runner.RunAsync", function()
+    local function setup()
+        local index = newIndex()
+        local registry = Registry.New(index)
+        registry:Register("account.currency", function()
+            return { gold = 12 }
+        end)
+        registry:Register("character.identity", function(id, task)
+            return { level = 50, topic = id, hasTask = task ~= nil }
+        end)
+        return index, registry
+    end
+
+    -- A scheduler that queues steps until the test runs them, as a frame-budgeted task would.
+    local function manual()
+        local queue = {}
+        return function(step)
+            queue[#queue + 1] = step
+        end, queue
+    end
+
+    it("does one topic per scheduled step and finishes with onDone", function()
+        local index, registry = setup()
+        local scheduler, queue = manual()
+        local done
+        Runner.RunAsync(
+            job(index, registry, { "account.currency", "character.identity" }),
+            scheduler,
+            function(container, result)
+                done = { container = container, result = result }
+            end
+        )
+        eq(#queue, 1, "nothing runs until the scheduler does")
+        eq(done, nil)
+
+        table.remove(queue, 1)()
+        eq(#queue, 1)
+        eq(done, nil, "one topic done, one to go")
+
+        table.remove(queue, 1)()
+        table.remove(queue, 1)()
+        truthy(done, "the step after the last topic reports")
+        eq(done.result.stored, { "account.currency", "character.identity" })
+        eq(done.container.account.topics["account.currency"].data, { gold = 12 })
+    end)
+
+    it("gives the same result as Run", function()
+        local ids = { "account.currency", "character.identity", "character.title" }
+        local index, registry = setup()
+        local syncContainer, syncResult = Runner.Run(job(index, registry, ids))
+        local asyncContainer, asyncResult
+        Runner.RunAsync(job(index, registry, ids), function(step)
+            step()
+        end, function(container, result)
+            asyncContainer, asyncResult = container, result
+        end)
+        eq(asyncContainer, syncContainer)
+        eq(asyncResult, syncResult)
+        eq(asyncResult.missing, { "character.title" })
+    end)
+
+    it("passes the job's task handle to extractors", function()
+        local index, registry = setup()
+        local j = job(index, registry, { "character.identity" })
+        j.task = {}
+        local container
+        Runner.RunAsync(j, function(step)
+            step()
+        end, function(c)
+            container = c
+        end)
+        eq(container.characters[CHARACTER.id].topics["character.identity"].data.hasTask, true)
+    end)
+
+    it("isolates a failing extractor and still finishes", function()
+        local index, registry = setup()
+        registry:Register("character.title", function()
+            error("boom")
+        end)
+        local scheduler, queue = manual()
+        local result
+        Runner.RunAsync(job(index, registry, { "character.title", "character.identity" }), scheduler, function(_, r)
+            result = r
+        end)
+        while #queue > 0 do
+            table.remove(queue, 1)()
+        end
+        eq(result.stored, { "character.identity" })
+        eq(#result.failed, 1)
+        eq(result.failed[1].id, "character.title")
+    end)
+
+    it("raises for a malformed job or missing callbacks before scheduling anything", function()
+        local index, registry = setup()
+        local scheduled = 0
+        local function scheduler()
+            scheduled = scheduled + 1
+        end
+        local function noop() end
+        falsy(pcall(Runner.RunAsync, { index = index }, scheduler, noop))
+        falsy(pcall(Runner.RunAsync, job(index, registry, {}), nil, noop))
+        falsy(pcall(Runner.RunAsync, job(index, registry, {}), scheduler, nil))
+        eq(scheduled, 0)
+    end)
+end)

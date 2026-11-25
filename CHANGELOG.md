@@ -7,6 +7,13 @@ the project follows [Semantic Versioning](https://semver.org/) once it is releas
 ## [Unreleased]
 
 ### Added
+- Async saves: `Runner.RunAsync(job, scheduler, onDone)` runs the same job as `Runner.Run` one
+  topic per scheduled step, so a long save does not stall the game. With LibAsync installed
+  (now an optional dependency, `## OptionalDependsOn: LibAsync`), `/eox save` schedules the
+  steps on a LibAsync task, prints one line when it starts and the usual summary when it ends,
+  and refuses a second save while one runs. Without LibAsync it runs in one go as before.
+  Extractors now receive the task handle as a second argument (nil without LibAsync). The
+  LibAsync calls were not checked in game yet.
 - `task deploy` (`tools/deploy.sh`): copies `LibExportStore`, `ESOExporterData` and `ESOExporter`
   into the game's `AddOns` folder, replacing each whole; `-- --dry-run` previews. It replaces the
   personal `deploy-eso-addon` skill that `CLAUDE.md` used to name.

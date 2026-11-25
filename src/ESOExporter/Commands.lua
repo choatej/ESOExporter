@@ -51,6 +51,11 @@ local function plural(count, one, many)
     return count .. " " .. (count == 1 and one or many)
 end
 
+--- The one line printed when a save that runs across frames starts.
+function Commands.StartLine(count)
+    return "ESOExporter: saving " .. plural(count, "topic", "topics") .. " in the background..."
+end
+
 --- Chat lines reporting a run: a summary, then one line per failed topic.
 function Commands.Summary(result)
     local parts = { "ESOExporter: saved " .. plural(#result.stored, "topic", "topics") }

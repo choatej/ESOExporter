@@ -17,8 +17,8 @@
 -- Each extractor runs under pcall. One that raises, or returns something other than a table, is
 -- listed in result.failed and stores nothing; it never stops the others. A topic with no extractor
 -- is listed in result.missing. A topic that runs replaces its earlier entry; topics that do not run
--- keep theirs. Work is synchronous for now; spreading it across frames (LibAsync) comes with the
--- heavy topics.
+-- keep theirs. Run is synchronous; RunAsync does the same work one topic per scheduled step (see
+-- below), which the game glue backs with LibAsync when it is installed.
 --
 -- result = { stored = { ids }, missing = { ids }, failed = { { id = ..., message = ... } },
 --            nodes = n, stringBytes = n, dropped = n }   -- the last three summed over stored entries
@@ -32,61 +32,101 @@ local function storePath(node, id, character)
     return { "characters", character.id, "topics", id }
 end
 
+-- Check the job and make the state one run works on.
+local function begin(job)
+    local index, registry, store = job.index, job.registry, job.store or LibExportStore
+    if type(index) ~= "table" or type(registry) ~= "table" or type(job.ids) ~= "table" then
+        error("Runner: a job needs index, registry and ids", 3)
+    end
+    if type(job.meta) ~= "table" then
+        error("Runner: a job needs meta", 3)
+    end
+    if type(store) ~= "table" then
+        error("Runner: LibExportStore is not loaded", 3)
+    end
+    local container = type(job.container) == "table" and job.container or {}
+    container.meta = job.meta
+    return {
+        job = job,
+        store = store,
+        container = container,
+        result = { stored = {}, missing = {}, failed = {}, nodes = 0, stringBytes = 0, dropped = 0 },
+    }
+end
+
+-- Run the extractor for one topic id and store its entry, or record why it did not.
+local function runTopic(state, id)
+    local job, store, result = state.job, state.store, state.result
+    local node = job.index.nodes[id]
+    local extractor = job.registry:Get(id)
+    local function fail(message)
+        result.failed[#result.failed + 1] = { id = id, message = message }
+    end
+    if not node or node.type ~= "topic" then
+        fail("not a topic in the tree")
+    elseif node.scope == "character" and (type(job.character) ~= "table" or not job.character.id) then
+        fail("no character to store it under")
+    elseif not extractor then
+        result.missing[#result.missing + 1] = id
+    else
+        local ok, data = pcall(extractor, id, job.task)
+        if not ok then
+            fail(tostring(data))
+        elseif type(data) ~= "table" then
+            fail("the extractor returned a " .. type(data) .. ", not a table")
+        else
+            local entry = store.NewEntry(data, { timestamp = job.timestamp })
+            local container = state.container
+            if node.scope == "character" then
+                local characters = container.characters or {}
+                container.characters = characters
+                local character = characters[job.character.id] or { topics = {} }
+                characters[job.character.id] = character
+                character.name = job.character.name
+            end
+            state.container = store.Put(container, storePath(node, id, job.character), entry)
+            result.stored[#result.stored + 1] = id
+            result.nodes = result.nodes + entry.report.nodes
+            result.stringBytes = result.stringBytes + entry.report.stringBytes
+            result.dropped = result.dropped + entry.report.dropped
+        end
+    end
+end
+
 --- Run the extractors for `job.ids` and store their entries. Returns the container and a result.
 -- Raises only for a malformed job (a programming error), never because an extractor failed.
 function Runner.Run(job)
-    local index, registry, store = job.index, job.registry, job.store or LibExportStore
-    if type(index) ~= "table" or type(registry) ~= "table" or type(job.ids) ~= "table" then
-        error("Runner: a job needs index, registry and ids", 2)
-    end
-    if type(job.meta) ~= "table" then
-        error("Runner: a job needs meta", 2)
-    end
-    if type(store) ~= "table" then
-        error("Runner: LibExportStore is not loaded", 2)
-    end
-
-    local container = type(job.container) == "table" and job.container or {}
-    container.meta = job.meta
-
-    local result = { stored = {}, missing = {}, failed = {}, nodes = 0, stringBytes = 0, dropped = 0 }
-    local function fail(id, message)
-        result.failed[#result.failed + 1] = { id = id, message = message }
-    end
-
+    local state = begin(job)
     for _, id in ipairs(job.ids) do
-        local node = index.nodes[id]
-        local extractor = registry:Get(id)
-        if not node or node.type ~= "topic" then
-            fail(id, "not a topic in the tree")
-        elseif node.scope == "character" and (type(job.character) ~= "table" or not job.character.id) then
-            fail(id, "no character to store it under")
-        elseif not extractor then
-            result.missing[#result.missing + 1] = id
-        else
-            local ok, data = pcall(extractor, id)
-            if not ok then
-                fail(id, tostring(data))
-            elseif type(data) ~= "table" then
-                fail(id, "the extractor returned a " .. type(data) .. ", not a table")
-            else
-                local entry = store.NewEntry(data, { timestamp = job.timestamp })
-                if node.scope == "character" then
-                    local characters = container.characters or {}
-                    container.characters = characters
-                    local character = characters[job.character.id] or { topics = {} }
-                    characters[job.character.id] = character
-                    character.name = job.character.name
-                end
-                container = store.Put(container, storePath(node, id, job.character), entry)
-                result.stored[#result.stored + 1] = id
-                result.nodes = result.nodes + entry.report.nodes
-                result.stringBytes = result.stringBytes + entry.report.stringBytes
-                result.dropped = result.dropped + entry.report.dropped
-            end
-        end
+        runTopic(state, id)
     end
-    return container, result
+    return state.container, state.result
+end
+
+--- Run the same job one topic per scheduled step, so the game can draw frames in between.
+-- `scheduler(step)` must call `step()` later, exactly once per call (a LibAsync task's `Call`, for
+-- example; `function(step) step() end` runs everything at once). `onDone(container, result)` is
+-- called after the last topic, from the last step. An extractor is called as `extractor(id,
+-- job.task)`; `job.task` is whatever handle the caller supplies (nil when there is none), for
+-- extractors that need to yield inside their own work. Returns nothing; raises for a malformed job
+-- before scheduling anything.
+function Runner.RunAsync(job, scheduler, onDone)
+    if type(scheduler) ~= "function" or type(onDone) ~= "function" then
+        error("Runner: RunAsync needs a scheduler and an onDone function", 2)
+    end
+    local state = begin(job)
+    local ids, nextIndex = job.ids, 1
+    local function step()
+        if nextIndex > #ids then
+            onDone(state.container, state.result)
+            return
+        end
+        local id = ids[nextIndex]
+        nextIndex = nextIndex + 1
+        runTopic(state, id)
+        scheduler(step)
+    end
+    scheduler(step)
 end
 
 ESOExporter = ESOExporter or {}
