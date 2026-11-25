@@ -16,6 +16,10 @@ task check                         # everything CI runs
 lua5.1 tests/lua/run.lua           # the specs under stock Lua 5.1 too
 ```
 
+Run the `sudo apt-get` line in your own terminal. A command typed with `!` in Claude Code, or
+run by a Claude Code session, has no terminal to ask for a password and fails with "a terminal
+is required to read the password". `tools/dev-setup.sh` needs no password and works from either.
+
 `--install` never uses `sudo` and touches nothing outside `~/.local/bin` (or `--bin-dir`),
 this checkout's git config and `tools/python/.venv`. It downloads pinned releases and checks
 their SHA-256 checksums. Make sure `~/.local/bin` is on your `PATH`.
