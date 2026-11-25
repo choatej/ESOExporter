@@ -281,11 +281,6 @@ if [ -n "$live" ]; then
 else
     note "game folder not found; set ESO_LIVE_DIR to the folder holding AddOns and SavedVariables"
 fi
-if [ -d "$HOME/.claude/skills/deploy-eso-addon" ] || [ -d "$ROOT/.claude/skills/deploy-eso-addon" ]; then
-    ok "deploy-eso-addon skill"
-else
-    note "deploy-eso-addon skill not installed (a personal Claude Code skill; see docs/DEVELOPMENT.md)"
-fi
 docs_found=0
 for doc in "$ROOT/docs/ESOUIDocumentation.txt" "$HOME/src/CharacterMarkdown/ESOUIDocumentationP50.txt"; do
     if [ -f "$doc" ]; then

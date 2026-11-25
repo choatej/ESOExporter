@@ -145,9 +145,9 @@ Run both LuaJIT and stock `lua5.1` before calling Lua work done: they differ
   scrubbed. `.gitignore` blocks the obvious paths.
 - Manifest folder name must equal the manifest file name. Live API version was
   101051 (game 12.1.7) on 2026-11-14; check the current value before bumping.
-- Deploy to the game with the `deploy-eso-addon` skill, not ad hoc copying or
-  project install tasks. It is a personal skill (`~/.claude/skills/`), not in the repo; if it
-  is missing, say so and ask before copying by hand (see `docs/DEVELOPMENT.md`).
+- Deploy to the game with `task deploy` (`tools/deploy.sh`; `task deploy -- --dry-run`
+  previews), not ad hoc copying. It writes into the maintainer's game folder, so run it only
+  when asked or when the task needs an in-game check, then tell them to `/reloadui`.
 
 ## Source material outside this repo
 

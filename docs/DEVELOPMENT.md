@@ -72,8 +72,8 @@ git must already know how to authenticate.
 
   `tools/dev-setup.sh` looks in these places; set `ESO_LIVE_DIR` if yours is elsewhere.
 - **Deploying** the add-ons copies `src/LibExportStore`, `src/ESOExporterData` and
-  `src/ESOExporter` into `AddOns/`, then `/reloadui` in game. `CLAUDE.md` asks Claude Code to
-  use the `deploy-eso-addon` skill for this; it is a personal skill (below), not part of the repo.
+  `src/ESOExporter` into `AddOns/`, then `/reloadui` in game. `task deploy` does it
+  (`tools/deploy.sh`, which finds the game folder as above; `task deploy -- --dry-run` previews).
 - **API documentation.** ZOS publishes `ESOUIDocumentation.txt` with each API version; ESOUI
   posts it with the API patch notes *(verify where for the current version)*. Keep a copy at
   `docs/ESOUIDocumentation.txt`, which is git-ignored, and note its API version.
@@ -90,7 +90,6 @@ recreate them on a new machine:
 |---|---|---|
 | Tools above | `PATH` | A session runs `tools/dev-setup.sh` and reports gaps; it should not install tools unasked. |
 | `gh` login and credential helper | `~/.config/gh`, git config | See "Git and GitHub". |
-| `deploy-eso-addon` skill | `~/.claude/skills/deploy-eso-addon/` | Personal skill; copy it from the old machine. |
 | Claude Code memory for this project | `~/.claude/projects/<path-of-checkout>/memory/` | Keyed by the checkout's path, so keep the same path (`~/src/ESOExporter`) or copy it. |
 | Private notes | `~/src/ESOExporter/.local/` | Git-ignored, primary checkout only. |
 | Reference checkouts | `~/src/CharacterMarkdown`, `~/src/cm-dump-<date>/` | Read-only sources listed in `CLAUDE.md`. The dump holds real character data: copy it privately, never commit it. |

@@ -7,6 +7,9 @@ the project follows [Semantic Versioning](https://semver.org/) once it is releas
 ## [Unreleased]
 
 ### Added
+- `task deploy` (`tools/deploy.sh`): copies `LibExportStore`, `ESOExporterData` and `ESOExporter`
+  into the game's `AddOns` folder, replacing each whole; `-- --dry-run` previews. It replaces the
+  personal `deploy-eso-addon` skill that `CLAUDE.md` used to name.
 - Add-on skeleton: the `ESOExporterData` data add-on, which owns the export's SavedVariables
   file and has no code; `ESOExporter.Registry` (an extractor per tree topic, checked at load);
   `ESOExporter.Runner` (runs extractors under `pcall`, stores sanitized entries at their
