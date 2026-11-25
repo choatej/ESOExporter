@@ -135,7 +135,7 @@ see "Order and dependencies" above.
 | M0 | Foundation | none | done | [#1](https://github.com/choatej/ESOExporter/pull/1), [#2](https://github.com/choatej/ESOExporter/pull/2), [#3](https://github.com/choatej/ESOExporter/pull/3) |
 | M1 | Export library and schema v1 | M0 | done | [#4](https://github.com/choatej/ESOExporter/pull/4), [#7](https://github.com/choatej/ESOExporter/pull/7), [#14](https://github.com/choatej/ESOExporter/pull/14) |
 | M2 | Add-on skeleton | M1 | done | [#15](https://github.com/choatej/ESOExporter/pull/15), [#18](https://github.com/choatej/ESOExporter/pull/18) |
-| M3 | First extractors | M2 | in progress | |
+| M3 | First extractors | M2 | in progress | [#20](https://github.com/choatej/ESOExporter/pull/20) |
 | M4 | Settings and reminders | M3 | not started | |
 | M5 | Python post-processor | real output from M2 or M3 | not started | |
 | M6 | Default post-processor | M5 | not started | |
@@ -164,7 +164,7 @@ A branch name is shown for planned work so it can be found; merged branches are 
 | [#14](https://github.com/choatej/ESOExporter/pull/14) | Topic tree v1 and gate resolution | M1 | merged |
 | [#15](https://github.com/choatej/ESOExporter/pull/15) | Add-on skeleton, data add-on, topic registry and runner | M2 | merged |
 | [#18](https://github.com/choatej/ESOExporter/pull/18) | Character identity extractor, the first real output | M2 | merged |
-| planned | Async extraction under LibAsync (`feat/async-runner`) | M3 | planned |
+| [#20](https://github.com/choatej/ESOExporter/pull/20) | Async extraction under LibAsync | M3 | open |
 | planned | Stats extractor (`feat/topic-stats`) | M3 | planned |
 | planned | Equipment extractor (`feat/topic-equipment`) | M3 | planned |
 | planned | Skills and skill bars extractor (`feat/topic-skills`) | M3 | planned |
@@ -199,7 +199,7 @@ milestone work. CI is here, not in M0, because M0 was done before it was planned
 | [#13](https://github.com/choatej/ESOExporter/pull/13) | `open-pr` skill and a check that the plan's pull request rows match GitHub | merged |
 | [#16](https://github.com/choatej/ESOExporter/pull/16) | Development environment guide and `tools/dev-setup.sh` | merged |
 | [#17](https://github.com/choatej/ESOExporter/pull/17) | Fix `tools/dev-setup.sh` exiting 1 on success and its package hint | merged |
-| [#19](https://github.com/choatej/ESOExporter/pull/19) | `task deploy` and `tools/deploy.sh` | open |
+| [#19](https://github.com/choatej/ESOExporter/pull/19) | `task deploy` and `tools/deploy.sh` | merged |
 
 The CI and release plan is [CI_AND_RELEASES.md](CI_AND_RELEASES.md). The release rows in
 M8 come from it.
