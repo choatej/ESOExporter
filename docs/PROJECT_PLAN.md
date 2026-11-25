@@ -16,7 +16,7 @@ completes or changes a row of the pull request roadmap.
   verified in game and noted in the pull request.
 - Real SavedVariables files and personal data never enter the repository. Only
   scrubbed fixtures do.
-- Deploy to the game with the dedicated deploy workflow, not by ad hoc copying.
+- Deploy to the game with `task deploy`, not by ad hoc copying.
 
 ## Milestones
 
@@ -163,7 +163,7 @@ A branch name is shown for planned work so it can be found; merged branches are 
 | [#7](https://github.com/choatej/ESOExporter/pull/7) | Schema v1, a hand-built fixture, the Python project (uv), and the CI and release plan | M1 | merged |
 | [#14](https://github.com/choatej/ESOExporter/pull/14) | Topic tree v1 and gate resolution | M1 | merged |
 | [#15](https://github.com/choatej/ESOExporter/pull/15) | Add-on skeleton, data add-on, topic registry and runner | M2 | merged |
-| [#18](https://github.com/choatej/ESOExporter/pull/18) | Character identity extractor, the first real output | M2 | open |
+| [#18](https://github.com/choatej/ESOExporter/pull/18) | Character identity extractor, the first real output | M2 | merged |
 | planned | Async extraction under LibAsync (`feat/async-runner`) | M3 | planned |
 | planned | Stats extractor (`feat/topic-stats`) | M3 | planned |
 | planned | Equipment extractor (`feat/topic-equipment`) | M3 | planned |
@@ -199,6 +199,7 @@ milestone work. CI is here, not in M0, because M0 was done before it was planned
 | [#13](https://github.com/choatej/ESOExporter/pull/13) | `open-pr` skill and a check that the plan's pull request rows match GitHub | merged |
 | [#16](https://github.com/choatej/ESOExporter/pull/16) | Development environment guide and `tools/dev-setup.sh` | merged |
 | [#17](https://github.com/choatej/ESOExporter/pull/17) | Fix `tools/dev-setup.sh` exiting 1 on success and its package hint | merged |
+| [#19](https://github.com/choatej/ESOExporter/pull/19) | `task deploy` and `tools/deploy.sh` | open |
 
 The CI and release plan is [CI_AND_RELEASES.md](CI_AND_RELEASES.md). The release rows in
 M8 come from it.
@@ -229,10 +230,8 @@ tree (`character.stats.*`, `character.equipment.*`, `character.skills.*`,
 `character.champion_points.*`). The tree's ids and groups are a starting catalog: an extractor PR
 may split, merge or rename nodes, and changes `tree.json`, the schema and the fixture together.
 
-**Tooling gaps found in the add-on skeleton session.** The `deploy-eso-addon` skill named in
-`CLAUDE.md` does not exist (the skeleton was copied into the game's AddOns folder by hand), and
-neither ESO API documentation file named there is on disk. Ask the maintainer whether to add a
-deploy skill (or task) and where the API docs now live.
+**Tooling gap.** Neither ESO API documentation file named in `CLAUDE.md` is on disk. Ask the
+maintainer where the API docs now live. (Deploying is `task deploy` since the deploy task PR.)
 
 **Ready any time, outside the milestone order.** The M8 rows `feat/packaging`,
 `ci/release-please` and `ci/release-artifacts` do not depend on the product work

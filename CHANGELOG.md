@@ -7,6 +7,9 @@ the project follows [Semantic Versioning](https://semver.org/) once it is releas
 ## [Unreleased]
 
 ### Added
+- `task deploy` (`tools/deploy.sh`): copies `LibExportStore`, `ESOExporterData` and `ESOExporter`
+  into the game's `AddOns` folder, replacing each whole; `-- --dry-run` previews. It replaces the
+  personal `deploy-eso-addon` skill that `CLAUDE.md` used to name.
 - The `character.identity` extractor (`src/ESOExporter/Extractors/Identity.lua`): race, class,
   gender and alliance ids, level and champion points earned, as raw numbers. Its schema is
   `schema/v1/topics/character.identity.schema.json`, referenced from the envelope by topic id
