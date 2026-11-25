@@ -3,6 +3,11 @@
 Thanks for your interest. The project is pre-alpha, so the best first step is to
 open an issue to discuss what you want to change.
 
+## Development environment
+
+See [docs/DEVELOPMENT.md](docs/DEVELOPMENT.md). In short: run `tools/dev-setup.sh` to see
+what is missing, install it, then `task check`.
+
 ## Workflow
 
 `main` is protected: nothing is committed to it directly.
