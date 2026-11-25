@@ -134,7 +134,7 @@ see "Order and dependencies" above.
 |---|---|---|---|---|
 | M0 | Foundation | none | done | [#1](https://github.com/choatej/ESOExporter/pull/1), [#2](https://github.com/choatej/ESOExporter/pull/2), [#3](https://github.com/choatej/ESOExporter/pull/3) |
 | M1 | Export library and schema v1 | M0 | done | [#4](https://github.com/choatej/ESOExporter/pull/4), [#7](https://github.com/choatej/ESOExporter/pull/7), [#14](https://github.com/choatej/ESOExporter/pull/14) |
-| M2 | Add-on skeleton | M1 | in progress | [#15](https://github.com/choatej/ESOExporter/pull/15) |
+| M2 | Add-on skeleton | M1 | in progress | [#15](https://github.com/choatej/ESOExporter/pull/15), PR_NUM |
 | M3 | First extractors | M2 | not started | |
 | M4 | Settings and reminders | M3 | not started | |
 | M5 | Python post-processor | real output from M2 or M3 | not started | |
@@ -163,7 +163,7 @@ A branch name is shown for planned work so it can be found; merged branches are 
 | [#7](https://github.com/choatej/ESOExporter/pull/7) | Schema v1, a hand-built fixture, the Python project (uv), and the CI and release plan | M1 | merged |
 | [#14](https://github.com/choatej/ESOExporter/pull/14) | Topic tree v1 and gate resolution | M1 | merged |
 | [#15](https://github.com/choatej/ESOExporter/pull/15) | Add-on skeleton, data add-on, topic registry and runner | M2 | merged |
-| planned | Character identity extractor, the first real output (`feat/identity-extractor`) | M2 | planned |
+| PR_NUM | Character identity extractor, the first real output | M2 | open |
 | planned | Async extraction under LibAsync (`feat/async-runner`) | M3 | planned |
 | planned | Stats extractor (`feat/topic-stats`) | M3 | planned |
 | planned | Equipment extractor (`feat/topic-equipment`) | M3 | planned |
@@ -198,7 +198,7 @@ milestone work. CI is here, not in M0, because M0 was done before it was planned
 | [#12](https://github.com/choatej/ESOExporter/pull/12) | Generate the shared data models from the schema (design docs) | merged |
 | [#13](https://github.com/choatej/ESOExporter/pull/13) | `open-pr` skill and a check that the plan's pull request rows match GitHub | merged |
 | [#16](https://github.com/choatej/ESOExporter/pull/16) | Development environment guide and `tools/dev-setup.sh` | merged |
-| [#17](https://github.com/choatej/ESOExporter/pull/17) | Fix `tools/dev-setup.sh` exiting 1 on success and its package hint | open |
+| [#17](https://github.com/choatej/ESOExporter/pull/17) | Fix `tools/dev-setup.sh` exiting 1 on success and its package hint | merged |
 
 The CI and release plan is [CI_AND_RELEASES.md](CI_AND_RELEASES.md). The release rows in
 M8 come from it.
@@ -208,30 +208,26 @@ M8 come from it.
 Replace this section when the next step's PR merges. Before writing anything, ask
 the maintainer the questions below in one batch, each with a recommendation.
 
-**Character identity extractor** (`feat/identity-extractor`, M2): the first real output. The
-add-on skeleton is in place: `ESOExporter.Register(id, fn)` registers an extractor for a tree
-topic, `/esoexport save` (alias `/eox`) runs the effective topics or the ids given, and the
-runner stores each result as an entry in `ESOExporterData` (owned by the `ESOExporterData`
-data add-on). Add `src/ESOExporter/Extractors/Identity.lua` (listed in the manifest after
-`ESOExporter.lua`), its topic schema, tests with stubbed game calls, and an in-game check. It
-ends M2 when a real SavedVariables file validates against the schema; the scrubbed real
-output then replaces the hand-built fixture. Ask:
+**Finish M2: the in-game check of the identity extractor.** The extractor, its schema
+(`schema/v1/topics/character.identity.schema.json`), stubs and tests are in
+the identity extractor pull request (see its row above), but nothing has run in game: the session that wrote it had no ESO
+API documentation, so `GetUnitRaceId`, `GetUnitClassId`, `GetUnitGender`, `GetUnitAlliance`,
+`GetUnitLevel("player")` and `GetPlayerChampionPointsEarned()` are unverified against API 101051.
+M2 ends when a real file validates. Ask:
 
-1. **Fields.** Recommendation: raw ids and numbers only, as in the hand-built fixture
-   (`raceId`, `classId`, `gender`, `alliance`, `level`, `championPoints`), plus anything else
-   cheap and stable the maintainer wants (title id, birth date of the character, server). Names
-   are resolved in post-processing.
-2. **Topic schema location.** Recommendation: `schema/v1/topics/character.identity.schema.json`,
-   referenced from the envelope schema by topic id, so each topic PR adds one file.
-3. **Validating real output.** Recommendation: a Python test that reads a scrubbed copy of the
-   real file (`schema/fixtures/real/`), and a scrub script so the maintainer can regenerate it;
-   ask whether to keep the hand-built fixture for the synthetic `fixture.*` topics.
-4. **In-game check.** Deploy, `/eox save`, `/reloadui`, then validate the file with the Python
-   tools (needs `uv` on the maintainer's machine).
+1. **Did the in-game check happen?** Deploy, `/eox save`, `/reloadui`, then
+   `uv run python tools/python/scripts/scrub_export.py <SavedVariables>/ESOExporterData.lua
+   schema/fixtures/real/identity.lua` and `task test:python`. If a call is wrong, fix the extractor
+   (the stubs in `tests/lua/eso_stubs.lua` change with it). If the maintainer ran it, ask for the
+   scrubbed file or the failures; never commit the real file.
+2. **Hand-built fixture.** Recommendation: keep it for the synthetic `fixture.*` topics and the
+   other tree topics until each has real output; update this PR's plan row and mark M2 done once
+   the real fixture is committed.
+3. **Deploy skill and API docs** (below).
 
-**What comes after the identity extractor.** **M3 extractors**, starting with async extraction
-under LibAsync (`feat/async-runner`, the runner is synchronous so far), then one pull request per
-topic id in the tree (`character.stats.*`, `character.equipment.*`, `character.skills.*`,
+**What comes after M2.** **M3 extractors**, starting with async extraction under LibAsync
+(`feat/async-runner`, the runner is synchronous so far), then one pull request per topic id in the
+tree (`character.stats.*`, `character.equipment.*`, `character.skills.*`,
 `character.champion_points.*`). The tree's ids and groups are a starting catalog: an extractor PR
 may split, merge or rename nodes, and changes `tree.json`, the schema and the fixture together.
 

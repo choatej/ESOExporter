@@ -27,6 +27,12 @@ files["src/ESOExporter/"] = {
         "GetCurrentCharacterId",
         "GetUnitName",
         "GetTimeStamp",
+        "GetUnitRaceId",
+        "GetUnitClassId",
+        "GetUnitGender",
+        "GetUnitAlliance",
+        "GetUnitLevel",
+        "GetPlayerChampionPointsEarned",
     },
 }
 

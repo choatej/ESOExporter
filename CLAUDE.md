@@ -60,8 +60,12 @@ Decided with the maintainer in the add-on skeleton PR (#15): the data add-on is
 `ESOExporterData` (`src/ESOExporterData/`, no code); API version 101051 only; one slash
 command `/esoexport` with the alias `/eox`, and subcommands added only when needed (`save` so
 far); extractors register by tree id (`ESOExporter.Register`), and the runner runs them under
-`pcall`. Next: the character identity extractor, which ends M2 with a real SavedVariables file
-that validates. Until then the fixture is hand-built to the schema.
+`pcall`. The character identity extractor (`src/ESOExporter/Extractors/Identity.lua`, schema in
+`schema/v1/topics/`, one file per topic) is written and tested offline with stubbed game calls,
+but its game calls are **not yet checked in game** (no API docs were on disk). Decided with the
+maintainer there: raw ids and numbers only; scrubbed real output goes in `schema/fixtures/real/`
+(`tools/python/scripts/scrub_export.py`) and the hand-built fixture stays for the synthetic
+topics. M2 ends when a real SavedVariables file from the game validates.
 
 The next step's questions and scope, and a ready-to-paste prompt for the next session,
 are in "Kickoff notes" in the plan. Ask those questions first.

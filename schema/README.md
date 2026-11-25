@@ -10,7 +10,10 @@ The versioned contract between the add-on and every post-processor.
 | `fixtures/hand-built/ESOExporterData.lua` | A fixture written by hand to the schema; no real data |
 
 Topic shapes are not part of the envelope. Each topic adds its own schema in the pull
-request that adds the topic; until then an entry's `data` is any sanitized value.
+request that adds the topic, as `v1/topics/<topic id>.schema.json`, and the envelope's
+`$defs/topics` points at it by id; until then an entry's `data` is any sanitized value.
+`character.identity` is the first. Scrubbed real output goes in `fixtures/real/`
+(`tools/python/scripts/scrub_export.py` makes it), and the Python tests validate whatever is there.
 
 ## What the envelope fixes
 
