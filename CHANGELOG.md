@@ -58,3 +58,8 @@ the project follows [Semantic Versioning](https://semver.org/) once it is releas
   and `tools/dev-setup.sh` (`task setup`): checks every tool, login and per-machine item a
   session needs, and with `--install` puts pinned, checksum-verified StyLua, Task and uv in
   `~/.local/bin` without sudo. The ESO API documentation file is now git-ignored.
+
+### Fixed
+- `tools/dev-setup.sh` exited 1 after a successful check (its cleanup trap returned the status
+  of a false test), and suggested the `apt`/`brew` command even when only StyLua, Task or uv
+  was missing.

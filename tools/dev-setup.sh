@@ -83,7 +83,8 @@ esac
 # ---------------------------------------------------------------- output
 
 MISSING=0
-LOCAL_MISSING=0 # StyLua, Task or uv, which --install provides
+LOCAL_MISSING=0  # StyLua, Task or uv, which --install provides
+SYSTEM_MISSING=0 # LuaJIT, Lua 5.1 or Luacheck, from the system package manager
 ok() { printf '  ok      %s\n' "$*"; }
 missing() {
     printf '  MISSING %s\n' "$*"
@@ -105,7 +106,13 @@ sha256_of() {
 # ---------------------------------------------------------------- installers
 
 WORK=""
-cleanup() { [ -n "$WORK" ] && rm -rf "$WORK"; }
+# An if, not `[ ] && rm`: the trap's last status becomes the exit status, so a false test
+# here would make a successful run exit 1.
+cleanup() {
+    if [ -n "$WORK" ]; then
+        rm -rf "$WORK"
+    fi
+}
 trap cleanup EXIT
 
 download() { # url, destination, expected sha256
@@ -210,7 +217,10 @@ for tool in git python3 task luajit lua5.1 luacheck stylua uv; do
         esac
     else
         missing "$tool"
-        case "$tool" in stylua | task | uv) LOCAL_MISSING=1 ;; esac
+        case "$tool" in
+            stylua | task | uv) LOCAL_MISSING=1 ;;
+            luajit | lua5.1 | luacheck) SYSTEM_MISSING=1 ;;
+        esac
     fi
 done
 
@@ -295,7 +305,9 @@ fi
 echo
 if [ "$MISSING" -gt 0 ]; then
     echo "$MISSING required item(s) missing."
-    if [ "$OS" = Linux ]; then
+    if [ "$SYSTEM_MISSING" = 0 ]; then
+        : # nothing to install from the package manager
+    elif [ "$OS" = Linux ]; then
         echo "System packages (Debian, Ubuntu, WSL): sudo apt-get install -y luajit lua5.1 lua-check"
     else
         echo "System packages (macOS, Homebrew): brew install luajit luarocks && luarocks install luacheck"

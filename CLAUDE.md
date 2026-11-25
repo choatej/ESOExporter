@@ -35,13 +35,14 @@ and the system packages it prints are the maintainer's call. Setup is in `docs/D
 
 ## Where we are
 
-Merged (#1 to #14): scaffold, docs, Lua tooling, `LibExportStore` (the export library),
+Merged (#1 to #16): scaffold, docs, Lua tooling, `LibExportStore` (the export library),
 schema v1 (`schema/v1/export.schema.json`), a hand-built fixture
 (`schema/fixtures/hand-built/`), a Python SavedVariables reader and schema tests
 (`tools/python`, a uv project with black, ruff, pyrefly and pytest; `task python:check`),
 the CI and release plan, and CI (`.github/workflows/ci.yml`; jobs `pr-title`, `lua`,
 `python`, `repo-hygiene`; Dependabot), all required on `main`, the model-generator design (#12),
-the `open-pr` skill (#13) and the topic tree (#14). M0 and M1 are done. Decided with the
+the `open-pr` skill (#13), the topic tree (#14), the add-on skeleton (#15) and the development
+setup guide and `tools/dev-setup.sh` (#16). M0 and M1 are done; M2 has one pull request left. Decided with the
 maintainer in #7: keep the name `LibExportStore`; export data lives in a separate small data
 add-on with its own SavedVariables file; JSON Schema draft 2020-12 validated with Python
 `jsonschema`; storage layout as in ARCHITECTURE.md 4.1.
@@ -55,7 +56,7 @@ deferred to M4** (users must be able to pick one and then diverge from it easily
 is `schema/v1/tree.json`; the game loads its generated Lua copy
 (`src/ESOExporter/TopicTreeData.lua`, regenerate with `tools/python/scripts/gen_tree_lua.py`)
 through `src/ESOExporter/TopicTree.lua`.
-The add-on skeleton (M2) is open as a PR. Decided with the maintainer there: the data add-on is
+Decided with the maintainer in the add-on skeleton PR (#15): the data add-on is
 `ESOExporterData` (`src/ESOExporterData/`, no code); API version 101051 only; one slash
 command `/esoexport` with the alias `/eox`, and subcommands added only when needed (`save` so
 far); extractors register by tree id (`ESOExporter.Register`), and the runner runs them under
