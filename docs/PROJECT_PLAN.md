@@ -134,7 +134,7 @@ see "Order and dependencies" above.
 |---|---|---|---|---|
 | M0 | Foundation | none | done | [#1](https://github.com/choatej/ESOExporter/pull/1), [#2](https://github.com/choatej/ESOExporter/pull/2), [#3](https://github.com/choatej/ESOExporter/pull/3) |
 | M1 | Export library and schema v1 | M0 | done | [#4](https://github.com/choatej/ESOExporter/pull/4), [#7](https://github.com/choatej/ESOExporter/pull/7), [#14](https://github.com/choatej/ESOExporter/pull/14) |
-| M2 | Add-on skeleton | M1 | in progress | [#15](https://github.com/choatej/ESOExporter/pull/15), PR_NUM |
+| M2 | Add-on skeleton | M1 | in progress | [#15](https://github.com/choatej/ESOExporter/pull/15), [#18](https://github.com/choatej/ESOExporter/pull/18) |
 | M3 | First extractors | M2 | not started | |
 | M4 | Settings and reminders | M3 | not started | |
 | M5 | Python post-processor | real output from M2 or M3 | not started | |
@@ -163,7 +163,7 @@ A branch name is shown for planned work so it can be found; merged branches are 
 | [#7](https://github.com/choatej/ESOExporter/pull/7) | Schema v1, a hand-built fixture, the Python project (uv), and the CI and release plan | M1 | merged |
 | [#14](https://github.com/choatej/ESOExporter/pull/14) | Topic tree v1 and gate resolution | M1 | merged |
 | [#15](https://github.com/choatej/ESOExporter/pull/15) | Add-on skeleton, data add-on, topic registry and runner | M2 | merged |
-| PR_NUM | Character identity extractor, the first real output | M2 | open |
+| [#18](https://github.com/choatej/ESOExporter/pull/18) | Character identity extractor, the first real output | M2 | open |
 | planned | Async extraction under LibAsync (`feat/async-runner`) | M3 | planned |
 | planned | Stats extractor (`feat/topic-stats`) | M3 | planned |
 | planned | Equipment extractor (`feat/topic-equipment`) | M3 | planned |
