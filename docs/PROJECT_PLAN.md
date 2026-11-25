@@ -198,6 +198,7 @@ milestone work. CI is here, not in M0, because M0 was done before it was planned
 | [#12](https://github.com/choatej/ESOExporter/pull/12) | Generate the shared data models from the schema (design docs) | merged |
 | [#13](https://github.com/choatej/ESOExporter/pull/13) | `open-pr` skill and a check that the plan's pull request rows match GitHub | merged |
 | [#16](https://github.com/choatej/ESOExporter/pull/16) | Development environment guide and `tools/dev-setup.sh` | merged |
+| [#17](https://github.com/choatej/ESOExporter/pull/17) | Fix `tools/dev-setup.sh` exiting 1 on success and its package hint | open |
 
 The CI and release plan is [CI_AND_RELEASES.md](CI_AND_RELEASES.md). The release rows in
 M8 come from it.
