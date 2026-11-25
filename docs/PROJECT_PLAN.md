@@ -163,7 +163,7 @@ A branch name is shown for planned work so it can be found; merged branches are 
 | [#7](https://github.com/choatej/ESOExporter/pull/7) | Schema v1, a hand-built fixture, the Python project (uv), and the CI and release plan | M1 | merged |
 | [#14](https://github.com/choatej/ESOExporter/pull/14) | Topic tree v1 and gate resolution | M1 | merged |
 | [#15](https://github.com/choatej/ESOExporter/pull/15) | Add-on skeleton, data add-on, topic registry and runner | M2 | open |
-| planned | Character identity extractor and `save` command (`feat/identity-extractor`) | M2 | planned |
+| planned | Character identity extractor, the first real output (`feat/identity-extractor`) | M2 | planned |
 | planned | Async extraction under LibAsync (`feat/async-runner`) | M3 | planned |
 | planned | Stats extractor (`feat/topic-stats`) | M3 | planned |
 | planned | Equipment extractor (`feat/topic-equipment`) | M3 | planned |
