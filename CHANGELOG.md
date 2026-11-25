@@ -7,6 +7,12 @@ the project follows [Semantic Versioning](https://semver.org/) once it is releas
 ## [Unreleased]
 
 ### Added
+- Add-on skeleton: the `ESOExporterData` data add-on, which owns the export's SavedVariables
+  file and has no code; `ESOExporter.Registry` (an extractor per tree topic, checked at load);
+  `ESOExporter.Runner` (runs extractors under `pcall`, stores sanitized entries at their
+  schema v1 paths, reports stored, missing and failed topics); and `/esoexport save [ids]`
+  with the alias `/eox`. No topic has an extractor yet, so a save writes only `meta`.
+  ESOExporter now depends on `LibExportStore` and `ESOExporterData`.
 - Topic tree v1 (`schema/v1/tree.json`, `tree.schema.json`): a fresh tree of groups and topics
   with full dotted snake_case ids, `account` or `character` scope and a `light` or `heavy`
   cost, where every node can be switched on or off on its own. Not ported from

@@ -33,17 +33,16 @@ maintainer rather than installing anything system-wide.
 
 ## Where we are
 
-Merged (#1 to #13): scaffold, docs, Lua tooling, `LibExportStore` (the export library),
+Merged (#1 to #14): scaffold, docs, Lua tooling, `LibExportStore` (the export library),
 schema v1 (`schema/v1/export.schema.json`), a hand-built fixture
 (`schema/fixtures/hand-built/`), a Python SavedVariables reader and schema tests
 (`tools/python`, a uv project with black, ruff, pyrefly and pytest; `task python:check`),
 the CI and release plan, and CI (`.github/workflows/ci.yml`; jobs `pr-title`, `lua`,
 `python`, `repo-hygiene`; Dependabot), all required on `main`, the model-generator design (#12),
-and the `open-pr` skill (#13). M0 is done. The topic tree (M1's last pull request) is open
-as a PR; once it merges M1 is done. Decided with the maintainer in #7: keep the name `LibExportStore`; export data
-lives in a separate small data add-on (provisionally `ESOExporterData`) with its own
-SavedVariables file; JSON Schema draft 2020-12 validated with Python `jsonschema`;
-storage layout as in ARCHITECTURE.md 4.1.
+the `open-pr` skill (#13) and the topic tree (#14). M0 and M1 are done. Decided with the
+maintainer in #7: keep the name `LibExportStore`; export data lives in a separate small data
+add-on with its own SavedVariables file; JSON Schema draft 2020-12 validated with Python
+`jsonschema`; storage layout as in ARCHITECTURE.md 4.1.
 The CI and release plan is `docs/CI_AND_RELEASES.md` (semver from conventional commits
 via release-please, release artifacts, post-processor packaging); only the CI workflow is
 implemented, and the rest has open decisions for the maintainer.
@@ -53,19 +52,20 @@ keys; every topic has `scope` and `cost`; every node toggles on its own; **prese
 deferred to M4** (users must be able to pick one and then diverge from it easily). The tree
 is `schema/v1/tree.json`; the game loads its generated Lua copy
 (`src/ESOExporter/TopicTreeData.lua`, regenerate with `tools/python/scripts/gen_tree_lua.py`)
-through `src/ESOExporter/TopicTree.lua`, which already has a manifest but no other add-on code.
-Next (see the pull request roadmap in the plan): add-on skeleton with topic registry and
-runner, then the character identity extractor and `save` command. Until the add-on exists
-there is no real output, so the fixture is hand-built to the schema.
+through `src/ESOExporter/TopicTree.lua`.
+The add-on skeleton (M2) is open as a PR. Decided with the maintainer there: the data add-on is
+`ESOExporterData` (`src/ESOExporterData/`, no code); API version 101051 only; one slash
+command `/esoexport` with the alias `/eox`, and subcommands added only when needed (`save` so
+far); extractors register by tree id (`ESOExporter.Register`), and the runner runs them under
+`pcall`. Next: the character identity extractor, which ends M2 with a real SavedVariables file
+that validates. Until then the fixture is hand-built to the schema.
 
 The next step's questions and scope, and a ready-to-paste prompt for the next session,
 are in "Kickoff notes" in the plan. Ask those questions first.
 
 **Decisions that belong to the maintainer. Ask, do not decide silently:**
-the export library's final name (`LibExportStore` is provisional, kept for now), the
-data add-on's name (`ESOExporterData` is provisional), the
-default post-processor's technology and slash
-command names.
+the export library's final name (`LibExportStore` is provisional, kept for now) and the
+default post-processor's technology.
 
 ## Session handoff
 

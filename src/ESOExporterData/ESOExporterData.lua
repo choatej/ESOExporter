@@ -1,0 +1,5 @@
+-- ESOExporterData
+-- This add-on only owns the ESOExporterData SavedVariables global, so the exports get a file of
+-- their own (SavedVariables/ESOExporterData.lua) apart from ESOExporter's settings. It has no
+-- code: ESOExporter, which depends on it, fills the global in. The layout of the global is
+-- schema/v1/export.schema.json. The game writes the file on /reloadui, logout or quit.
