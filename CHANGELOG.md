@@ -11,9 +11,10 @@ the project follows [Semantic Versioning](https://semver.org/) once it is releas
   gender and alliance ids, level and champion points earned, as raw numbers. Its schema is
   `schema/v1/topics/character.identity.schema.json`, referenced from the envelope by topic id
   (each topic PR adds one file under `topics/`). `/eox save` now stores it. The game calls it
-  uses are not yet checked in game. Also a scrub script
+  uses were checked in game (API 101051). Also a scrub script
   (`tools/python/scripts/scrub_export.py`) that turns a real SavedVariables file into a committable
-  fixture for `schema/fixtures/real/`, which the Python tests validate.
+  fixture for `schema/fixtures/real/`, which the Python tests validate; the first real output,
+  `identity.lua`, is there.
 - Add-on skeleton: the `ESOExporterData` data add-on, which owns the export's SavedVariables
   file and has no code; `ESOExporter.Registry` (an extractor per tree topic, checked at load);
   `ESOExporter.Runner` (runs extractors under `pcall`, stores sanitized entries at their

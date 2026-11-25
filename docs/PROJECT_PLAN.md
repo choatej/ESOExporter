@@ -134,7 +134,7 @@ see "Order and dependencies" above.
 |---|---|---|---|---|
 | M0 | Foundation | none | done | [#1](https://github.com/choatej/ESOExporter/pull/1), [#2](https://github.com/choatej/ESOExporter/pull/2), [#3](https://github.com/choatej/ESOExporter/pull/3) |
 | M1 | Export library and schema v1 | M0 | done | [#4](https://github.com/choatej/ESOExporter/pull/4), [#7](https://github.com/choatej/ESOExporter/pull/7), [#14](https://github.com/choatej/ESOExporter/pull/14) |
-| M2 | Add-on skeleton | M1 | in progress | [#15](https://github.com/choatej/ESOExporter/pull/15), [#18](https://github.com/choatej/ESOExporter/pull/18) |
+| M2 | Add-on skeleton | M1 | done | [#15](https://github.com/choatej/ESOExporter/pull/15), [#18](https://github.com/choatej/ESOExporter/pull/18) |
 | M3 | First extractors | M2 | not started | |
 | M4 | Settings and reminders | M3 | not started | |
 | M5 | Python post-processor | real output from M2 or M3 | not started | |
@@ -208,25 +208,23 @@ M8 come from it.
 Replace this section when the next step's PR merges. Before writing anything, ask
 the maintainer the questions below in one batch, each with a recommendation.
 
-**Finish M2: the in-game check of the identity extractor.** The extractor, its schema
-(`schema/v1/topics/character.identity.schema.json`), stubs and tests are in
-the identity extractor pull request (see its row above), but nothing has run in game: the session that wrote it had no ESO
-API documentation, so `GetUnitRaceId`, `GetUnitClassId`, `GetUnitGender`, `GetUnitAlliance`,
-`GetUnitLevel("player")` and `GetPlayerChampionPointsEarned()` are unverified against API 101051.
-M2 ends when a real file validates. Ask:
+**Async extraction under LibAsync** (`feat/async-runner`, M3): the runner is synchronous, which is
+fine for identity and will freeze the game for heavy topics. M2 is done: `character.identity`
+ran in game (API 101051, game 12.1.7) and its scrubbed output, `schema/fixtures/real/identity.lua`,
+validates. Ask:
 
-1. **Did the in-game check happen?** Deploy, `/eox save`, `/reloadui`, then
-   `uv run python tools/python/scripts/scrub_export.py <SavedVariables>/ESOExporterData.lua
-   schema/fixtures/real/identity.lua` and `task test:python`. If a call is wrong, fix the extractor
-   (the stubs in `tests/lua/eso_stubs.lua` change with it). If the maintainer ran it, ask for the
-   scrubbed file or the failures; never commit the real file.
-2. **Hand-built fixture.** Recommendation: keep it for the synthetic `fixture.*` topics and the
-   other tree topics until each has real output; update this PR's plan row and mark M2 done once
-   the real fixture is committed.
-3. **Deploy skill and API docs** (below).
+1. **LibAsync dependency.** Recommendation: optional (`## OptionalDependsOn`), with the current
+   synchronous run as the fallback, so the add-on works without it. The survey in the appendix
+   says "Use" (3.1.6).
+2. **Shape.** Recommendation: the runner stays pure and takes a scheduler function; the game glue
+   passes a LibAsync-backed one and tests pass a synchronous or manual one. Extractors that need
+   to yield get a task handle; identity stays a plain function.
+3. **Progress output.** Recommendation: one chat line when a long save starts and one summary at
+   the end, nothing per topic.
+4. **In-game check.** Deploy with `task deploy`; verify with a deliberately slow synthetic topic
+   that the frame rate holds and the result is the same as the synchronous run.
 
-**What comes after M2.** **M3 extractors**, starting with async extraction under LibAsync
-(`feat/async-runner`, the runner is synchronous so far), then one pull request per topic id in the
+**After that,** one M3 extractor pull request per topic id in the
 tree (`character.stats.*`, `character.equipment.*`, `character.skills.*`,
 `character.champion_points.*`). The tree's ids and groups are a starting catalog: an extractor PR
 may split, merge or rename nodes, and changes `tree.json`, the schema and the fixture together.

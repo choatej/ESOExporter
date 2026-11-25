@@ -1,8 +1,7 @@
 -- character.identity: who the character is, as raw ids and numbers. Names (race, class, alliance)
 -- are resolved in post-processing from these ids; nothing here is formatted.
 --
--- The game calls below are unverified against the live API (101051): check each in game, as the
--- pull request notes say, before relying on the output.
+-- Checked in game on API 101051 (12.1.7): every call returned a number.
 
 local TAG = "player"
 
