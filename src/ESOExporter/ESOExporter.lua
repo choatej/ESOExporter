@@ -48,7 +48,32 @@ local function Meta()
     }
 end
 
+--- A scheduler backed by LibAsync, and its task handle, or nil when LibAsync is not installed.
+-- LibAsync is an optional dependency; without it a save runs in one go. *(verify in game: that
+-- task:Call(fn) from inside a running call queues fn for a later slice of the frame budget)*
+local function AsyncScheduler()
+    if not LibAsync then
+        return nil
+    end
+    local task = LibAsync:Create(ADDON_NAME)
+    return function(step)
+        task:Call(step)
+    end, task
+end
+
+local function Finish(container, result)
+    ESOExporterData = container
+    Exporter.saving = false
+    for _, line in ipairs(Exporter.Commands.Summary(result)) do
+        Print(line)
+    end
+end
+
 function Exporter.Save(ids)
+    if Exporter.saving then
+        Print("ESOExporter: a save is already running.")
+        return
+    end
     local index = Exporter.index
     local effective = Exporter.TopicTree.Resolve(index, Overrides())
     local selected, problem = Exporter.Commands.SelectTopics(index, effective, ids)
@@ -56,7 +81,7 @@ function Exporter.Save(ids)
         Print(problem)
         return
     end
-    local container, result = Exporter.Runner.Run({
+    local job = {
         index = index,
         registry = Exporter.registry,
         ids = selected,
@@ -64,10 +89,19 @@ function Exporter.Save(ids)
         meta = Meta(),
         character = { id = GetCurrentCharacterId(), name = GetUnitName("player") },
         timestamp = GetTimeStamp(),
-    })
-    ESOExporterData = container
-    for _, line in ipairs(Exporter.Commands.Summary(result)) do
-        Print(line)
+    }
+    local scheduler, task = AsyncScheduler()
+    if not scheduler then
+        Finish(Exporter.Runner.Run(job))
+        return
+    end
+    job.task = task
+    Exporter.saving = true
+    Print(Exporter.Commands.StartLine(#selected))
+    local started, err = pcall(Exporter.Runner.RunAsync, job, scheduler, Finish)
+    if not started then
+        Exporter.saving = false
+        Print("ESOExporter: could not start the save: " .. tostring(err))
     end
 end
 

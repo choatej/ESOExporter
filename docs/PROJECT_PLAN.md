@@ -135,7 +135,7 @@ see "Order and dependencies" above.
 | M0 | Foundation | none | done | [#1](https://github.com/choatej/ESOExporter/pull/1), [#2](https://github.com/choatej/ESOExporter/pull/2), [#3](https://github.com/choatej/ESOExporter/pull/3) |
 | M1 | Export library and schema v1 | M0 | done | [#4](https://github.com/choatej/ESOExporter/pull/4), [#7](https://github.com/choatej/ESOExporter/pull/7), [#14](https://github.com/choatej/ESOExporter/pull/14) |
 | M2 | Add-on skeleton | M1 | done | [#15](https://github.com/choatej/ESOExporter/pull/15), [#18](https://github.com/choatej/ESOExporter/pull/18) |
-| M3 | First extractors | M2 | not started | |
+| M3 | First extractors | M2 | in progress | [#20](https://github.com/choatej/ESOExporter/pull/20) |
 | M4 | Settings and reminders | M3 | not started | |
 | M5 | Python post-processor | real output from M2 or M3 | not started | |
 | M6 | Default post-processor | M5 | not started | |
@@ -164,7 +164,7 @@ A branch name is shown for planned work so it can be found; merged branches are 
 | [#14](https://github.com/choatej/ESOExporter/pull/14) | Topic tree v1 and gate resolution | M1 | merged |
 | [#15](https://github.com/choatej/ESOExporter/pull/15) | Add-on skeleton, data add-on, topic registry and runner | M2 | merged |
 | [#18](https://github.com/choatej/ESOExporter/pull/18) | Character identity extractor, the first real output | M2 | merged |
-| planned | Async extraction under LibAsync (`feat/async-runner`) | M3 | planned |
+| [#20](https://github.com/choatej/ESOExporter/pull/20) | Async extraction under LibAsync | M3 | open |
 | planned | Stats extractor (`feat/topic-stats`) | M3 | planned |
 | planned | Equipment extractor (`feat/topic-equipment`) | M3 | planned |
 | planned | Skills and skill bars extractor (`feat/topic-skills`) | M3 | planned |
@@ -199,7 +199,7 @@ milestone work. CI is here, not in M0, because M0 was done before it was planned
 | [#13](https://github.com/choatej/ESOExporter/pull/13) | `open-pr` skill and a check that the plan's pull request rows match GitHub | merged |
 | [#16](https://github.com/choatej/ESOExporter/pull/16) | Development environment guide and `tools/dev-setup.sh` | merged |
 | [#17](https://github.com/choatej/ESOExporter/pull/17) | Fix `tools/dev-setup.sh` exiting 1 on success and its package hint | merged |
-| [#19](https://github.com/choatej/ESOExporter/pull/19) | `task deploy` and `tools/deploy.sh` | open |
+| [#19](https://github.com/choatej/ESOExporter/pull/19) | `task deploy` and `tools/deploy.sh` | merged |
 
 The CI and release plan is [CI_AND_RELEASES.md](CI_AND_RELEASES.md). The release rows in
 M8 come from it.
@@ -209,29 +209,30 @@ M8 come from it.
 Replace this section when the next step's PR merges. Before writing anything, ask
 the maintainer the questions below in one batch, each with a recommendation.
 
-**Async extraction under LibAsync** (`feat/async-runner`, M3): the runner is synchronous, which is
-fine for identity and will freeze the game for heavy topics. M2 is done: `character.identity`
-ran in game (API 101051, game 12.1.7) and its scrubbed output, `schema/fixtures/real/identity.lua`,
-validates. Ask:
+**Stats extractors** (`feat/topic-stats`, M3): `character.stats.attributes`, `.resources`,
+`.offense` and `.defense`, in one pull request or split if their schemas are large. The async
+runner has merged, but its LibAsync calls were never run in game (no LibAsync in the session's
+environment); check them first: install LibAsync, `task deploy`, `/eox save`, and confirm the
+start line, the summary and the file. Then build the stats work on it. Ask:
 
-1. **LibAsync dependency.** Recommendation: optional (`## OptionalDependsOn`), with the current
-   synchronous run as the fallback, so the add-on works without it. The survey in the appendix
-   says "Use" (3.1.6).
-2. **Shape.** Recommendation: the runner stays pure and takes a scheduler function; the game glue
-   passes a LibAsync-backed one and tests pass a synchronous or manual one. Extractors that need
-   to yield get a task handle; identity stays a plain function.
-3. **Progress output.** Recommendation: one chat line when a long save starts and one summary at
-   the end, nothing per topic.
-4. **In-game check.** Deploy with `task deploy`; verify with a deliberately slow synthetic topic
-   that the frame rate holds and the result is the same as the synchronous run.
+1. **Split.** Recommendation: the four stats topics in one PR if each is a handful of
+   `GetPlayerStat`-style values; split offense and defense off if their schemas grow large.
+2. **Fields.** Recommendation: raw numbers keyed by the game's stat enum ids (the constant values,
+   not names), so post-processing resolves names; no derived values.
+3. **Tree changes.** Recommendation: leave the ids as they are unless a topic turns out to need a
+   split; any change goes in the same PR as `tree.json`, its Lua copy, the schema and fixture.
+4. **LibAsync check.** Recommendation: do it as part of this PR's in-game check, and fix
+   `Runner`/glue here if it fails.
 
-**After that,** one M3 extractor pull request per topic id in the
-tree (`character.stats.*`, `character.equipment.*`, `character.skills.*`,
-`character.champion_points.*`). The tree's ids and groups are a starting catalog: an extractor PR
-may split, merge or rename nodes, and changes `tree.json`, the schema and the fixture together.
+**After that,** the other M3 extractor pull requests, one per topic id in the tree
+(`character.equipment.*`, `character.skills.*`, `character.champion_points.*`). The tree's ids and
+groups are a starting catalog: an extractor PR may split, merge or rename nodes, and changes
+`tree.json`, the schema and the fixture together.
 
-**Tooling gap.** Neither ESO API documentation file named in `CLAUDE.md` is on disk. Ask the
-maintainer where the API docs now live. (Deploying is `task deploy` since the deploy task PR.)
+**Tooling gap.** Neither ESO API documentation file named in `CLAUDE.md` is on disk in the
+background environment. The maintainer will copy them (and the personal deploy skill, if still
+wanted) from the other machine into `docs/ESOUIDocumentation.txt`; check that it is there before
+relying on any game function, and say if it is not.
 
 **Ready any time, outside the milestone order.** The M8 rows `feat/packaging`,
 `ci/release-please` and `ci/release-artifacts` do not depend on the product work

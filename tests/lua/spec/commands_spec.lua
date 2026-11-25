@@ -48,6 +48,13 @@ describe("Commands.SelectTopics", function()
     end)
 end)
 
+describe("Commands.StartLine", function()
+    it("says how many topics will be saved", function()
+        eq(Commands.StartLine(1), "ESOExporter: saving 1 topic in the background...")
+        eq(Commands.StartLine(12), "ESOExporter: saving 12 topics in the background...")
+    end)
+end)
+
 describe("Commands.Summary", function()
     it("says what was saved and where the file appears", function()
         local lines = Commands.Summary({ stored = { "a.b" }, missing = {}, failed = {}, dropped = 0 })

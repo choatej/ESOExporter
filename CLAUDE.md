@@ -64,7 +64,9 @@ far); extractors register by tree id (`ESOExporter.Register`), and the runner ru
 `schema/v1/topics/`, one file per topic) ran in game (API 101051, 12.1.7): raw ids and numbers
 only, and its scrubbed output (`schema/fixtures/real/identity.lua`, made with
 `tools/python/scripts/scrub_export.py`) validates. M2 is done. The hand-built fixture stays for
-the synthetic topics. Next: async extraction (LibAsync), then one extractor pull request per topic.
+the synthetic topics. The async runner (`Runner.RunAsync`; LibAsync is an optional
+dependency, and a save without it runs in one go) is in; its LibAsync calls are unchecked in
+game. Next: the stats extractors, then one extractor pull request per topic.
 
 The next step's questions and scope, and a ready-to-paste prompt for the next session,
 are in "Kickoff notes" in the plan. Ask those questions first.

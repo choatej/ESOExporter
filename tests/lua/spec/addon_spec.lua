@@ -20,6 +20,7 @@ describe("ESOExporter add-on", function()
     before_each(function()
         ESOExporter = nil
         ESOExporterData = nil
+        LibAsync = nil
     end)
 
     it("loads from its manifest and registers the slash commands once loaded", function()
@@ -42,6 +43,12 @@ describe("ESOExporter add-on", function()
         local depends = manifest:match("## DependsOn: ([^\n]+)")
         truthy(depends and depends:find("LibExportStore", 1, true), "depends on LibExportStore")
         truthy(depends and depends:find("ESOExporterData", 1, true), "depends on ESOExporterData")
+    end)
+
+    it("lists LibAsync as optional, not required", function()
+        local _, manifest = loadAll()
+        eq(manifest:match("## OptionalDependsOn: ([^\n]+)"), "LibAsync")
+        falsy(manifest:match("## DependsOn: ([^\n]+)"):find("LibAsync", 1, true))
     end)
 
     it("names the export global as the data add-on's SavedVariables", function()
@@ -114,5 +121,55 @@ describe("ESOExporter add-on", function()
         eq(game.printed[2], ESOExporter.Commands.USAGE)
         eq(game.printed[3], "ESOExporter: 'character.nope' is not a topic or group.")
         eq(ESOExporterData, nil, "nothing is saved")
+    end)
+
+    -- With LibAsync installed. A stand-in for a LibAsync task: calls queue until the test runs them.
+    local function installLibAsync()
+        local queue = {}
+        LibAsync = {
+            Create = function(_, name)
+                queue.name = name
+                return {
+                    Call = function(_, fn)
+                        queue[#queue + 1] = fn
+                    end,
+                }
+            end,
+        }
+        return queue
+    end
+
+    it("with LibAsync, saves across steps, with one line at the start and one summary", function()
+        local game = loadAll()
+        local queue = installLibAsync()
+        game.fire(EVENT_ADD_ON_LOADED, "ESOExporter")
+
+        SLASH_COMMANDS["/eox"]("save character.identity")
+        eq(queue.name, "ESOExporter")
+        eq(game.printed, { ESOExporter.Commands.StartLine(1) })
+        eq(ESOExporterData, nil, "nothing is stored until the task runs")
+
+        while #queue > 0 do
+            table.remove(queue, 1)()
+        end
+        truthy(ESOExporterData.characters["4500000000000001"].topics["character.identity"])
+        eq(#game.printed, 2)
+        truthy(game.printed[2]:find("saved 1 topic", 1, true), game.printed[2])
+    end)
+
+    it("with LibAsync, refuses a second save while one is running, then allows one", function()
+        local game = loadAll()
+        local queue = installLibAsync()
+        game.fire(EVENT_ADD_ON_LOADED, "ESOExporter")
+
+        SLASH_COMMANDS["/eox"]("save character.identity")
+        SLASH_COMMANDS["/eox"]("save character.identity")
+        eq(game.printed[2], "ESOExporter: a save is already running.")
+
+        while #queue > 0 do
+            table.remove(queue, 1)()
+        end
+        SLASH_COMMANDS["/eox"]("save character.identity")
+        eq(#queue, 1, "a new save was scheduled")
     end)
 end)

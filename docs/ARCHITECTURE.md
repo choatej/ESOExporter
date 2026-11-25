@@ -57,7 +57,7 @@ Data flows one way: game, SavedVariables file, post-processor, output file.
 | Core | Namespace, version, chat output, game calls, event and command registration (`ESOExporter.lua`) |
 | Topic registry | Maps each topic id of the tree to its extractor; rejects ids that are not tree topics (`Registry.lua`) |
 | Extractors | One per topic. Read the game, return a plain table of raw values |
-| Runner | Run extractors under `pcall`, sanitize, store at the schema path, report (`Runner.lua`; synchronous until LibAsync arrives in M3) |
+| Runner | Run extractors under `pcall`, sanitize, store at the schema path, report (`Runner.lua`; `Run` is synchronous, `RunAsync` does one topic per step under a scheduler the game glue backs with LibAsync) |
 | Settings | Saved defaults and the in-game settings panel |
 | Commands | `/esoexport` (alias `/eox`); subcommands are added as needed, so far `save` (`Commands.lua` parses, selects topics and words replies) |
 | Reminder | Login message about stored exports |
@@ -213,8 +213,13 @@ fields inside `meta` is not a breaking change. Adding a top-level key is.
    (inventory, achievements) are opt-in.
 3. Run each extractor under `pcall`. A failing extractor is recorded in the run
    report and never aborts the others.
-4. Spread work across frames with LibAsync so the client never stalls *(M3; the runner
-   is synchronous until then)*.
+4. Spread work across frames with LibAsync so the client never stalls. LibAsync is optional:
+   `RunAsync` takes a scheduler function, the game glue passes a LibAsync task's `Call`, and
+   without LibAsync the save runs in one go through `Run`. One chat line says a background save
+   started, and the usual summary says it ended; a second save is refused while one runs.
+   An extractor is called as `extractor(id, task)`, where `task` is the LibAsync task (nil
+   without it), for the heavy topics that need to yield inside their own work *(the
+   LibAsync calls are unchecked in game; verify with a slow topic)*.
 5. Sanitize each result into an entry and `Put` it into the container.
 6. Print a one-line summary (counts, size, dropped values) and remind the user
    that the file is written on `/reloadui`, logout or quit.
@@ -288,7 +293,7 @@ a chosen age automatically.
 
 | Library | Plan |
 |---|---|
-| LibAsync | Required: spread extraction across frames |
+| LibAsync | Optional (`## OptionalDependsOn`): spread extraction across frames; a save runs in one go without it |
 | LibAddonMenu-2.0 | Required for the settings screen |
 | LibCharacterKnowledge | Use at export time only, for crafting knowledge |
 | LibItemSets | Optional, only if set data is needed in game |
